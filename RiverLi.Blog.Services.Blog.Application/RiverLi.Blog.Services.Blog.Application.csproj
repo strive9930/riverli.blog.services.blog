@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="MediatR" Version="14.0.0" />
-    <PackageReference Include="RiverLi.DDD.Core" Version="1.0.4" />
+    <PackageReference Include="RiverLi.DDD.Core" Version="1.0.8" />
   </ItemGroup>
 
   <ItemGroup>

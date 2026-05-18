@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -16,11 +16,11 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="RiverLi.DDD.Core" Version="1.0.4" />
+    <PackageReference Include="RiverLi.DDD.Core" Version="1.0.8" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\riverli.blog.infrastructure.shared\RiverLi.Blog.Infrastructure.Shared\RiverLi.Blog.Infrastructure.Shared.csproj" />
+    <ProjectReference Include="..\..\riverli.blog.infrastructure.shared\RiverLi.Blog.Infrastructure.Shared.csproj" />
     <ProjectReference Include="..\RiverLi.Blog.Services.Blog.Domain\RiverLi.Blog.Services.Blog.Domain.csproj" />
   </ItemGroup>
 
