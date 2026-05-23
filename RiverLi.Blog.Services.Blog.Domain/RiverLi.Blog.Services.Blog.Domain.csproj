@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="RiverLi.DDD.Core" Version="1.0.4" />
+    <PackageReference Include="RiverLi.DDD.Core" Version="1.0.8" />
   </ItemGroup>
 
 </Project>

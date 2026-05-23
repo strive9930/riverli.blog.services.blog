@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find e:/RiderProjects/riverli.ddd.core -name \"*.cs\" -not -path \"*/bin/*\" -not -path \"*/obj/*\" | sort)",
+      "Read(//e/RiderProjects/riverli.ddd.core/**)",
+      "Bash(dotnet build *)"
+    ]
+  }
+}
