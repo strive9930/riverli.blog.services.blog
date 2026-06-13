@@ -8,11 +8,13 @@
 
   <ItemGroup>
     <PackageReference Include="MediatR" Version="14.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.12" />
     <PackageReference Include="RiverLi.DDD.Core" Version="1.0.8" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\RiverLi.Blog.Services.Blog.Domain\RiverLi.Blog.Services.Blog.Domain.csproj" />
+    <ProjectReference Include="..\RiverLi.Blog.Services.Blog.Infrastructure\RiverLi.Blog.Services.Blog.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,23 +1,39 @@
-﻿using RiverLi.DDD.Core.Domain.Common;
+﻿using System;
+using RiverLi.Blog.Services.Blog.Domain.Enum;
+using RiverLi.DDD.Core.Domain.Common;
 
-namespace RiverLi.Blog.Services.Blog.Domain.Aggregates
+namespace RiverLi.Blog.Services.Blog.Domain.Aggregates;
+
+/// <summary>
+/// 评论实体 (附属实体)
+/// </summary>
+public class Comment : BaseEntity<Guid>, IAggregateRoot
 {
-    public class Comment : BaseEntity // 注意：这里使用 BaseEntity<Guid> 自动生成 ID
+    public Guid ArticleId { get; private set; }
+    public string ReviewerId { get; private set; }
+    public string ReviewerName { get; private set; }
+    public string Content { get; private set; }
+    public CommentStatus Status { get; private set; }
+
+    private Comment()
     {
-        public Guid UserId { get; private set; }
-        public string UserName { get; private set; }
-        public string Content { get; private set; }
+    }
 
-        // 简单点，不做无限嵌套评论，只做单层
-        public Guid ArticleId { get; private set; }
+    public Comment(Guid articleId, string reviewerId, string reviewerName, string content)
+    {
+        ArticleId = articleId;
+        ReviewerId = reviewerId;
+        ReviewerName = reviewerName;
+        Content = content;
+        Status = CommentStatus.Pending; // 默认待审核，防垃圾评论
+    }
 
-        private Comment() { }
-
-        public Comment(Guid userId, string userName, string content)
-        {
-            UserId = userId;
-            UserName = userName;
-            Content = content;
-        }
+    /// <summary>
+    /// 领域行为：审核评论
+    /// </summary>
+    public void Audit(CommentStatus targetStatus)
+    {
+        Status = targetStatus;
+        UpdateModifyTime();
     }
 }

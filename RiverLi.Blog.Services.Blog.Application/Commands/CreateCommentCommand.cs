@@ -1,0 +1,10 @@
+using System;
+using MediatR;
+using RiverLi.DDD.Core.Application.Common.Models;
+
+namespace RiverLi.Blog.Services.Blog.Application.Commands;
+
+/// <summary>
+/// 读者提交评论命令 (无需登录态，由网关处理)
+/// </summary>
+public record CreateCommentCommand(Guid ArticleId, string Content) : IRequest<Result<Guid>>;

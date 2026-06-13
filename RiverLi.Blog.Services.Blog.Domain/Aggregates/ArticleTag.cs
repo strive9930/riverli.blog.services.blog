@@ -1,18 +1,21 @@
-﻿using RiverLi.DDD.Core.Domain.Common;
+﻿using System;
+using RiverLi.DDD.Core.Domain.Common;
 
-namespace RiverLi.Blog.Services.Blog.Domain.Aggregates
+namespace RiverLi.Blog.Services.Blog.Domain.Aggregates;
+
+/// <summary>
+/// 文章与标签的映射实体
+/// </summary>
+public class ArticleTag : BaseEntity<Guid>
 {
-    // 多对多关联表实体
-    public class ArticleTag : IEntity<Guid>
-    {
-        public Guid Id { get; set; } = Guid.NewGuid();
-        public Guid ArticleId { get; set; }
-        public string TagName { get; set; } // 直接存 TagName 简化设计，也可存 TagId
+    public Guid ArticleId { get; private set; }
+    public Guid TagId { get; private set; }
 
-        private ArticleTag() { }
-        public ArticleTag(string tagName)
-        {
-            TagName = tagName;
-        }
+    private ArticleTag() { }
+
+    internal ArticleTag(Guid articleId, Guid tagId)
+    {
+        ArticleId = articleId;
+        TagId = tagId;
     }
 }
