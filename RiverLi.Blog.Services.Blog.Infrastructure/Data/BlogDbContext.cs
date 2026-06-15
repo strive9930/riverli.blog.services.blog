@@ -21,6 +21,7 @@ public class BlogDbContext : RiverDbContext
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Tag> Tags => Set<Tag>();
     public DbSet<ArticleTag> ArticleTags => Set<ArticleTag>();
+    public DbSet<Media> Media => Set<Media>();
 
     public BlogDbContext(
         DbContextOptions<BlogDbContext> options,

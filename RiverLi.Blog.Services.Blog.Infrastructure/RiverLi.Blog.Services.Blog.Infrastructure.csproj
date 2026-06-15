@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\riverli.blog.infrastructure.shared\RiverLi.Blog.Infrastructure.Shared.csproj" />
+    <ProjectReference Include="..\RiverLi.Blog.Services.Blog.Application\RiverLi.Blog.Services.Blog.Application.csproj" />
     <ProjectReference Include="..\RiverLi.Blog.Services.Blog.Domain\RiverLi.Blog.Services.Blog.Domain.csproj" />
   </ItemGroup>
 

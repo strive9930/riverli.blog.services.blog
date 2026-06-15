@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RiverLi.Blog.Infrastructure.Shared.Controllers;
 using RiverLi.Blog.Services.Blog.Application.Commands;
 using RiverLi.Blog.Services.Blog.Application.Queries;
 
@@ -8,8 +9,8 @@ namespace RiverLi.Blog.Services.Blog.Api.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/categories")]
-    public class CategoryController : ControllerBase
+    [Route("api/blog/[controller]")]
+    public class CategoryController: BaseApiController
     {
         private readonly IMediator _mediator;
 
@@ -23,6 +24,14 @@ namespace RiverLi.Blog.Services.Blog.Api.Controllers
         public async Task<IActionResult> GetTree()
         {
             var result = await _mediator.Send(new GetCategoryTreeQuery());
+            return result.Success ? Ok(result) : BadRequest(result.Message);
+        }
+
+        /// <summary>获取分类扁平选项 (供下拉框使用)</summary>
+        [HttpGet("options")]
+        public async Task<IActionResult> GetOptions()
+        {
+            var result = await _mediator.Send(new GetCategoryOptionsQuery());
             return result.Success ? Ok(result) : BadRequest(result.Message);
         }
 

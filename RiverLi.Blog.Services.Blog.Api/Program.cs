@@ -5,7 +5,6 @@ using RiverLi.Blog.Infrastructure.Shared.Extensions;
 using RiverLi.Blog.Infrastructure.Shared.OpenApi;
 using RiverLi.Blog.Services.Blog.Application.Commands;
 using RiverLi.Blog.Services.Blog.Infrastructure.Data;
-using Scalar.AspNetCore;
 
 namespace RiverLi.Blog.Services.Blog.Api;
 
@@ -36,8 +35,8 @@ public class Program
 
         builder.Services.AddHealthCheckSupport(builder.Configuration);
         builder.Services.AddApiSelfReporting();
-        builder.Services.AddMicroserviceOpenApi(); 
 
+        builder.Services.AddRouting(options => options.LowercaseUrls = true);
         builder.Services.AddControllers(); 
 
         // ==========================================
@@ -71,17 +70,6 @@ public class Program
         // ==========================================
         var app = builder.Build();
 
-        if (app.Environment.IsDevelopment())
-        {
-            app.MapOpenApi();
-            app.MapScalarApiReference(options =>
-            {
-                options.WithTitle("RiverLi Blog API")
-                    .WithTheme(ScalarTheme.Moon)
-                    .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
-            });
-        }
-        
         // 启动时自动迁移数据库并初始化种子数据
         using (var scope = app.Services.CreateScope())
         {

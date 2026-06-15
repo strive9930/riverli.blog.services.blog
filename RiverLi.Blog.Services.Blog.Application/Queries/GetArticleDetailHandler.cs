@@ -3,49 +3,48 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using RiverLi.Blog.Services.Blog.Application.Common.Dto;
-using RiverLi.Blog.Services.Blog.Infrastructure.Data;
+using RiverLi.Blog.Services.Blog.Domain.Aggregates;
 using RiverLi.DDD.Core.Application.Common.Models;
+using RiverLi.DDD.Core.Domain.Repositories;
 
 namespace RiverLi.Blog.Services.Blog.Application.Queries;
 
 public class GetArticleDetailHandler : IRequestHandler<GetArticleDetailQuery, Result<ArticleDetailDto>>
 {
-    private readonly BlogDbContext _dbContext;
+    private readonly IRepository<Article, Guid> _repository;
+    private readonly IMemoryCache _cache;
 
-    public GetArticleDetailHandler(BlogDbContext dbContext)
+    public GetArticleDetailHandler(IRepository<Article, Guid> repository, IMemoryCache cache)
     {
-        _dbContext = dbContext;
+        _repository = repository;
+        _cache = cache;
     }
 
     public async Task<Result<ArticleDetailDto>> Handle(GetArticleDetailQuery request, CancellationToken cancellationToken)
     {
-        var article = await _dbContext.Articles
-            .AsNoTracking()
-            .Include(a => a.Tags)
+        var cacheKey = $"article_detail_{request.Id}";
+
+        if (_cache.TryGetValue<ArticleDetailDto>(cacheKey, out var cached))
+            return Result<ArticleDetailDto>.SuccessResult(cached);
+
+        var article = await _repository
+            .AsQueryable()
             .Where(a => !a.IsDeleted && a.Id == request.Id)
             .Select(a => new ArticleDetailDto(
-                a.Id,
-                a.Title,
-                a.Content,
-                a.Summary,
-                a.CoverUrl,
-                a.AuthorId,
-                a.AuthorName,
-                a.Status.ToString(),
-                a.CategoryId,
-                null, // CategoryName — 需要 JOIN
-                a.Tags.Select(t => new TagDto(t.TagId, "", "", 0)).ToList(), // TagName 需要二次查询
-                a.ViewCount,
-                a.Comments.Count,
-                a.CreateTime,
-                a.UpdateTime
+                a.Id, a.Title, a.Content, a.Summary, a.CoverUrl,
+                a.AuthorId, a.AuthorName, a.Status.ToString(),
+                a.CategoryId, null,
+                a.Tags.Select(t => new TagDto(t.TagId, "", "", 0)).ToList(),
+                a.ViewCount, a.Comments.Count, a.CreateTime, a.UpdateTime
             ))
             .FirstOrDefaultAsync(cancellationToken);
 
         if (article == null)
             return Result<ArticleDetailDto>.FailResult("文章不存在");
 
+        _cache.Set(cacheKey, article, TimeSpan.FromMinutes(3));
         return Result<ArticleDetailDto>.SuccessResult(article);
     }
 }

@@ -4,29 +4,34 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using RiverLi.Blog.Services.Blog.Application.Common.Dto;
 using RiverLi.Blog.Services.Blog.Domain.Aggregates;
-using RiverLi.Blog.Services.Blog.Infrastructure.Data;
 using RiverLi.DDD.Core.Application.Common.Models;
+using RiverLi.DDD.Core.Domain.Repositories;
 
 namespace RiverLi.Blog.Services.Blog.Application.Queries;
 
 public class GetArticlePageHandler : IRequestHandler<GetArticlePageQuery, Result<PagedResult<ArticleDto>>>
 {
-    private readonly BlogDbContext _dbContext;
+    private readonly IRepository<Article, Guid> _repository;
+    private readonly IMemoryCache _cache;
 
-    public GetArticlePageHandler(BlogDbContext dbContext)
+    public GetArticlePageHandler(IRepository<Article, Guid> repository, IMemoryCache cache)
     {
-        _dbContext = dbContext;
+        _repository = repository;
+        _cache = cache;
     }
 
     public async Task<Result<PagedResult<ArticleDto>>> Handle(GetArticlePageQuery request, CancellationToken cancellationToken)
     {
-        var query = _dbContext.Articles
-            .AsNoTracking()
-            .Where(a => !a.IsDeleted);
+        var cacheKey = $"articles_page_{request.PageIndex}_{request.PageSize}_{request.Keyword}_{request.CategoryId}_{request.TagId}_{request.Status}_{request.SortBy}";
 
-        // 关键词过滤
+        if (_cache.TryGetValue<PagedResult<ArticleDto>>(cacheKey, out var cached))
+            return Result<PagedResult<ArticleDto>>.SuccessResult(cached);
+
+        var query = _repository.AsQueryable().Where(a => !a.IsDeleted);
+
         if (!string.IsNullOrWhiteSpace(request.Keyword))
         {
             query = query.Where(a =>
@@ -34,28 +39,18 @@ public class GetArticlePageHandler : IRequestHandler<GetArticlePageQuery, Result
                 a.Summary.Contains(request.Keyword));
         }
 
-        // 分类过滤
         if (request.CategoryId.HasValue)
-        {
             query = query.Where(a => a.CategoryId == request.CategoryId.Value);
-        }
 
-        // 标签过滤
         if (request.TagId.HasValue)
-        {
             query = query.Where(a => a.Tags.Any(t => t.TagId == request.TagId.Value));
-        }
 
-        // 状态过滤
         if (!string.IsNullOrWhiteSpace(request.Status) &&
             System.Enum.TryParse<RiverLi.Blog.Services.Blog.Domain.Enum.ArticleStatus>(request.Status, true, out var status))
-        {
             query = query.Where(a => a.Status == status);
-        }
 
         var totalCount = await query.CountAsync(cancellationToken);
 
-        // 排序
         query = request.SortBy?.ToLower() switch
         {
             "viewcount" => query.OrderByDescending(a => a.ViewCount),
@@ -67,21 +62,16 @@ public class GetArticlePageHandler : IRequestHandler<GetArticlePageQuery, Result
             .Skip((request.PageIndex - 1) * request.PageSize)
             .Take(request.PageSize)
             .Select(a => new ArticleDto(
-                a.Id,
-                a.Title,
-                a.Summary,
-                a.CoverUrl,
-                a.AuthorName,
-                a.Status.ToString(),
-                null, // CategoryName — 需要 JOIN，查询优化时可补
+                a.Id, a.Title, a.Summary, a.CoverUrl, a.AuthorName,
+                a.Status.ToString(), null,
                 a.Tags.Select(t => t.TagId.ToString()).ToList(),
-                a.ViewCount,
-                a.Comments.Count,
-                a.CreateTime
+                a.ViewCount, a.Comments.Count, a.CreateTime
             ))
             .ToListAsync(cancellationToken);
 
-        return Result<PagedResult<ArticleDto>>.SuccessResult(
-            PagedResult<ArticleDto>.SuccessResult(items, totalCount, request.PageIndex, request.PageSize));
+        var result = PagedResult<ArticleDto>.SuccessResult(items, totalCount, request.PageIndex, request.PageSize);
+        _cache.Set(cacheKey, result, TimeSpan.FromMinutes(1));
+
+        return Result<PagedResult<ArticleDto>>.SuccessResult(result);
     }
 }

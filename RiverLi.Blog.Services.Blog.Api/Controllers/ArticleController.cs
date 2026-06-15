@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RiverLi.Blog.Infrastructure.Shared.Controllers;
 using RiverLi.Blog.Services.Blog.Application.Commands;
 using RiverLi.Blog.Services.Blog.Application.Queries;
 
@@ -9,8 +10,8 @@ namespace RiverLi.Blog.Services.Blog.Api.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/articles")]
-    public class ArticleController : ControllerBase
+    [Route("api/blog/[controller]")]
+    public class ArticleController : BaseApiController
     {
         private readonly IMediator _mediator;
 
