@@ -3,8 +3,8 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RiverLi.Blog.Infrastructure.Shared.Controllers;
-using RiverLi.Blog.Services.Blog.Application.Commands;
-using RiverLi.Blog.Services.Blog.Application.Queries;
+using RiverLi.Blog.Services.Blog.Application.Features.Articles.Commands;
+using RiverLi.Blog.Services.Blog.Application.Features.Articles.Queries;
 
 namespace RiverLi.Blog.Services.Blog.Api.Controllers
 {

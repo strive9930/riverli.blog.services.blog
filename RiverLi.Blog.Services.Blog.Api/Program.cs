@@ -1,10 +1,12 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using RiverLi.Blog.Infrastructure.Shared.Data;
 using RiverLi.DDD.Core.Domain.Repositories;
 using RiverLi.Blog.Infrastructure.Shared.Extensions;
 using RiverLi.Blog.Infrastructure.Shared.OpenApi;
-using RiverLi.Blog.Services.Blog.Application.Commands;
+using RiverLi.Blog.Services.Blog.Application.Features.Articles.Commands;
+using RiverLi.Blog.Services.Blog.Application.Interfaces;
 using RiverLi.Blog.Services.Blog.Infrastructure.Data;
+using RiverLi.Blog.Services.Blog.Infrastructure.Storage;
 
 namespace RiverLi.Blog.Services.Blog.Api;
 
@@ -38,7 +40,10 @@ public class Program
 
         builder.Services.AddRouting(options => options.LowercaseUrls = true);
         builder.Services.AddControllers(); 
-
+        
+        builder.Services.AddEndpointsApiExplorer();
+        // 🌟 补上这行：注册内存缓存服务，提供 IMemoryCache 的具体实现
+        builder.Services.AddMemoryCache();
         // ==========================================
         // 2. 业务专属注入
         // ==========================================
@@ -47,8 +52,11 @@ public class Program
             ?? throw new InvalidOperationException("未获取到连接字符串");
         builder.Services.AddDbContext<BlogDbContext>(options =>
             options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
-            
+        // 注册服务
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddScoped<IStorageService, LocalFileStorageService>();    
         builder.Services.AddScoped<RiverDbContext>(provider => provider.GetRequiredService<BlogDbContext>());
+        builder.Services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<BlogDbContext>());
         
         builder.Services.AddScoped(typeof(IRepository<,>), typeof(RiverLi.Blog.Infrastructure.Shared.Repositories.EfRepository<,>));
         builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateArticleHandler).Assembly));
@@ -69,7 +77,10 @@ public class Program
         // 3. 中间件管道
         // ==========================================
         var app = builder.Build();
-
+        
+        // 在 app.Build() 之后，开启静态文件访问
+        app.UseStaticFiles();
+        
         // 启动时自动迁移数据库并初始化种子数据
         using (var scope = app.Services.CreateScope())
         {

@@ -5,6 +5,7 @@ using RiverLi.Blog.Infrastructure.Shared.Data;
 using RiverLi.Blog.Services.Blog.Domain.Aggregates;
 using RiverLi.DDD.Core.Application.Common.Interfaces;
 using RiverLi.DDD.Core.Domain.Common;
+using RiverLi.DDD.Core.Domain.Repositories;
 
 namespace RiverLi.Blog.Services.Blog.Infrastructure.Data;
 
@@ -37,7 +38,6 @@ public class BlogDbContext : RiverDbContext
         base.OnModelCreating(modelBuilder);
 
         // 自动扫描当前程序集（Infrastructure 层）下所有实现了 IEntityTypeConfiguration 的类
-        // 也就是我们之前写的 ArticleConfiguration 会在这里自动生效
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(BlogDbContext).Assembly);
     }
 

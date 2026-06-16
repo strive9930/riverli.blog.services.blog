@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Threading.Tasks;
 using MediatR;
@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RiverLi.Blog.Infrastructure.Shared.Controllers;
-using RiverLi.Blog.Services.Blog.Application.Commands;
-using RiverLi.Blog.Services.Blog.Application.Queries;
+using RiverLi.Blog.Services.Blog.Application.Features.Medias.Commands;
+using RiverLi.Blog.Services.Blog.Application.Features.Medias.Queries;
 using RiverLi.DDD.Core.Application.Common.Models;
 
 namespace RiverLi.Blog.Services.Blog.Api.Controllers
