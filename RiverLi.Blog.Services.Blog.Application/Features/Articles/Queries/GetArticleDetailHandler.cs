@@ -42,7 +42,7 @@ public class GetArticleDetailHandler : IRequestHandler<GetArticleDetailQuery, Re
             .FirstOrDefaultAsync(cancellationToken);
 
         if (article == null)
-            return Result<ArticleDetailDto>.FailResult("���²�����");
+            return Result<ArticleDetailDto>.FailResult("文章不存在");
 
         _cache.Set(cacheKey, article, TimeSpan.FromMinutes(3));
         return Result<ArticleDetailDto>.SuccessResult(article);

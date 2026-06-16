@@ -54,7 +54,15 @@ public class Program
             options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
         // 注册服务
         builder.Services.AddHttpContextAccessor();
-        builder.Services.AddScoped<IStorageService, LocalFileStorageService>();    
+
+        #region 文件存储
+
+        builder.Services.AddScoped<IStorageService, LocalFileStorageService>(); 
+        //  🚀 一键替换为阿里云 OSS 存储服务
+        //builder.Services.AddScoped<IStorageService, AliyunOssStorageService>();
+
+        #endregion
+        
         builder.Services.AddScoped<RiverDbContext>(provider => provider.GetRequiredService<BlogDbContext>());
         
         builder.Services.AddScoped(typeof(IRepository<,>), typeof(RiverLi.Blog.Infrastructure.Shared.Repositories.EfRepository<,>));

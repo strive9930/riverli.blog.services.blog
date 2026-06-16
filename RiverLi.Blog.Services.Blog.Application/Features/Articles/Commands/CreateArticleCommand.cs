@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using MediatR;
-using RiverLi.DDD.Core.Application.Common.Models; // �������� Result λ�ڴ˴�
+using RiverLi.DDD.Core.Application.Common.Models;
 
 namespace RiverLi.Blog.Services.Blog.Application.Features.Articles.Commands;
 
 /// <summary>
-/// �������µ��������� (����������Ϣ��������Ϣ���� Handler ��ͨ����ǰ��¼�� JWT Token �Զ�����)
+/// 创建文章的命令请求 (不含作者信息，作者信息将在 Handler 中通过当前登录的 JWT Token 自动解析)
 /// </summary>
-/// <param name="Title">���±���</param>
-/// <param name="Content">Markdown ��������</param>
-/// <param name="Summary">����ժҪ����</param>
-/// <param name="CoverUrl">����ͼ URL������Ϊ�գ�</param>
-/// <param name="CategoryId">������� ID</param>
-/// <param name="TagIds">�����ı�ǩ ID ���ϣ�����Ϊ�գ�</param>
+/// <param name="Title">文章标题</param>
+/// <param name="Content">Markdown 核心正文</param>
+/// <param name="Summary">文章摘要描述</param>
+/// <param name="CoverUrl">封面图 URL（允许为空）</param>
+/// <param name="CategoryId">所属分类 ID</param>
+/// <param name="TagIds">关联的标签 ID 集合（允许为空）</param>
 public record CreateArticleCommand(
     string Title,
     string Content,
@@ -21,4 +21,4 @@ public record CreateArticleCommand(
     string? CoverUrl,
     Guid CategoryId,
     List<Guid>? TagIds
-) : IRequest<Result<Guid>>; // �涨��д����ִ����Ϻ��� API �㷵�������µ� Guid
+) : IRequest<Result<Guid>>;
