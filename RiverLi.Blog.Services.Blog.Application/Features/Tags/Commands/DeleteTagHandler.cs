@@ -12,13 +12,11 @@ public class DeleteTagHandler : IRequestHandler<DeleteTagCommand, Result>
 {
     private readonly IRepository<Tag, Guid> _repository;
     private readonly ICurrentUser _currentUser;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public DeleteTagHandler(IRepository<Tag, Guid> repository, ICurrentUser currentUser, IUnitOfWork unitOfWork)
+    public DeleteTagHandler(IRepository<Tag, Guid> repository, ICurrentUser currentUser)
     {
         _repository = repository;
         _currentUser = currentUser;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<Result> Handle(DeleteTagCommand request, CancellationToken cancellationToken)
@@ -31,7 +29,7 @@ public class DeleteTagHandler : IRequestHandler<DeleteTagCommand, Result>
             return Result.FailResult("标签不存在");
 
         tag.MarkAsDeleted();
-        var saved = await _unitOfWork.SaveEntitiesAsync(cancellationToken);
+        var saved = await _repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
         if (!saved)
             return Result.FailResult("删除失败，请重试");
         return Result.SuccessResult();

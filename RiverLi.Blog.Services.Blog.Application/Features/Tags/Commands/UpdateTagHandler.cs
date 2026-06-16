@@ -12,13 +12,11 @@ public class UpdateTagHandler : IRequestHandler<UpdateTagCommand, Result>
 {
     private readonly IRepository<Tag, Guid> _repository;
     private readonly ICurrentUser _currentUser;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public UpdateTagHandler(IRepository<Tag, Guid> repository, ICurrentUser currentUser, IUnitOfWork unitOfWork)
+    public UpdateTagHandler(IRepository<Tag, Guid> repository, ICurrentUser currentUser)
     {
         _repository = repository;
         _currentUser = currentUser;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<Result> Handle(UpdateTagCommand request, CancellationToken cancellationToken)
@@ -32,7 +30,7 @@ public class UpdateTagHandler : IRequestHandler<UpdateTagCommand, Result>
 
         tag.Update(request.Name, request.Slug);
         await _repository.UpdateAsync(tag, cancellationToken);
-        var saved = await _unitOfWork.SaveEntitiesAsync(cancellationToken);
+        var saved = await _repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
         if (!saved)
             return Result.FailResult("修改失败，请重试");
         return Result.SuccessResult();

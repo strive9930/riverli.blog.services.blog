@@ -17,7 +17,6 @@ public class UploadMediaHandler : IRequestHandler<UploadMediaCommand, Result<Gui
 {
     private readonly IRepository<Media, Guid> _repository;
     private readonly ICurrentUser _currentUser;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IWebHostEnvironment _env;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ILogger<UploadMediaHandler> _logger;
@@ -27,14 +26,12 @@ public class UploadMediaHandler : IRequestHandler<UploadMediaCommand, Result<Gui
     public UploadMediaHandler(
         IRepository<Media, Guid> repository,
         ICurrentUser currentUser,
-        IUnitOfWork unitOfWork,
         IWebHostEnvironment env,
         IHttpContextAccessor httpContextAccessor,
         ILogger<UploadMediaHandler> logger)
     {
         _repository = repository;
         _currentUser = currentUser;
-        _unitOfWork = unitOfWork;
         _env = env;
         _httpContextAccessor = httpContextAccessor;
         _logger = logger;
@@ -78,7 +75,7 @@ public class UploadMediaHandler : IRequestHandler<UploadMediaCommand, Result<Gui
         );
 
         await _repository.AddAsync(media, cancellationToken);
-        var saved = await _unitOfWork.SaveEntitiesAsync(cancellationToken);
+        var saved = await _repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
         if (!saved)
         {
             if (File.Exists(fullPath)) File.Delete(fullPath);

@@ -12,13 +12,11 @@ public class DeleteCategoryHandler : IRequestHandler<DeleteCategoryCommand, Resu
 {
     private readonly IRepository<Category, Guid> _repository;
     private readonly ICurrentUser _currentUser;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public DeleteCategoryHandler(IRepository<Category, Guid> repository, ICurrentUser currentUser, IUnitOfWork unitOfWork)
+    public DeleteCategoryHandler(IRepository<Category, Guid> repository, ICurrentUser currentUser)
     {
         _repository = repository;
         _currentUser = currentUser;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<Result> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
@@ -31,7 +29,7 @@ public class DeleteCategoryHandler : IRequestHandler<DeleteCategoryCommand, Resu
             return Result.FailResult("分类不存在");
 
         category.MarkAsDeleted();
-        var saved = await _unitOfWork.SaveEntitiesAsync(cancellationToken);
+        var saved = await _repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
         if (!saved)
             return Result.FailResult("删除失败，请重试");
         return Result.SuccessResult();

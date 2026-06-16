@@ -12,13 +12,11 @@ public class UpdateCategoryHandler : IRequestHandler<UpdateCategoryCommand, Resu
 {
     private readonly IRepository<Category, Guid> _repository;
     private readonly ICurrentUser _currentUser;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public UpdateCategoryHandler(IRepository<Category, Guid> repository, ICurrentUser currentUser, IUnitOfWork unitOfWork)
+    public UpdateCategoryHandler(IRepository<Category, Guid> repository, ICurrentUser currentUser)
     {
         _repository = repository;
         _currentUser = currentUser;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<Result> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
@@ -32,7 +30,7 @@ public class UpdateCategoryHandler : IRequestHandler<UpdateCategoryCommand, Resu
 
         category.Update(request.Name, request.Slug, request.Description, request.ParentId, request.SortOrder);
         await _repository.UpdateAsync(category, cancellationToken);
-        var saved = await _unitOfWork.SaveEntitiesAsync(cancellationToken);
+        var saved = await _repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
         if (!saved)
             return Result.FailResult("修改失败，请重试");
         return Result.SuccessResult();

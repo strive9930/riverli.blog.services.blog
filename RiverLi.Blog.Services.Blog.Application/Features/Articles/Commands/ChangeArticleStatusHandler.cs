@@ -12,13 +12,11 @@ public class ChangeArticleStatusHandler : IRequestHandler<ChangeArticleStatusCom
 {
     private readonly IRepository<Article, Guid> _repository;
     private readonly ICurrentUser _currentUser;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public ChangeArticleStatusHandler(IRepository<Article, Guid> repository, ICurrentUser currentUser, IUnitOfWork unitOfWork)
+    public ChangeArticleStatusHandler(IRepository<Article, Guid> repository, ICurrentUser currentUser)
     {
         _repository = repository;
         _currentUser = currentUser;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<Result> Handle(ChangeArticleStatusCommand request, CancellationToken cancellationToken)
@@ -35,7 +33,7 @@ public class ChangeArticleStatusHandler : IRequestHandler<ChangeArticleStatusCom
 
         article.ChangeStatus(request.Status);
         await _repository.UpdateAsync(article, cancellationToken);
-        var saved = await _unitOfWork.SaveEntitiesAsync(cancellationToken);
+        var saved = await _repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
         if (!saved)
             return Result.FailResult("状态更新失败，请重试");
         return Result.SuccessResult();

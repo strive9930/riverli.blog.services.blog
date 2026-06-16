@@ -12,13 +12,11 @@ public class AuditCommentHandler : IRequestHandler<AuditCommentCommand, Result>
 {
     private readonly IRepository<Comment, Guid> _repository;
     private readonly ICurrentUser _currentUser;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public AuditCommentHandler(IRepository<Comment, Guid> repository, ICurrentUser currentUser, IUnitOfWork unitOfWork)
+    public AuditCommentHandler(IRepository<Comment, Guid> repository, ICurrentUser currentUser)
     {
         _repository = repository;
         _currentUser = currentUser;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<Result> Handle(AuditCommentCommand request, CancellationToken cancellationToken)
@@ -32,7 +30,7 @@ public class AuditCommentHandler : IRequestHandler<AuditCommentCommand, Result>
 
         comment.Audit(request.Status);
         await _repository.UpdateAsync(comment, cancellationToken);
-        var saved = await _unitOfWork.SaveEntitiesAsync(cancellationToken);
+        var saved = await _repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
         if (!saved)
             return Result.FailResult("审核操作失败，请重试");
         return Result.SuccessResult();

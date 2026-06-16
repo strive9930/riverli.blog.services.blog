@@ -12,13 +12,11 @@ public class CreateTagHandler : IRequestHandler<CreateTagCommand, Result<Guid>>
 {
     private readonly IRepository<Tag, Guid> _repository;
     private readonly ICurrentUser _currentUser;
-    private readonly IUnitOfWork _unitOfWork;
 
-    public CreateTagHandler(IRepository<Tag, Guid> repository, ICurrentUser currentUser, IUnitOfWork unitOfWork)
+    public CreateTagHandler(IRepository<Tag, Guid> repository, ICurrentUser currentUser)
     {
         _repository = repository;
         _currentUser = currentUser;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<Result<Guid>> Handle(CreateTagCommand request, CancellationToken cancellationToken)
@@ -28,7 +26,7 @@ public class CreateTagHandler : IRequestHandler<CreateTagCommand, Result<Guid>>
 
         var tag = new Tag(request.Name, request.Slug);
         await _repository.AddAsync(tag, cancellationToken);
-        var saved = await _unitOfWork.SaveEntitiesAsync(cancellationToken);
+        var saved = await _repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
         if (!saved)
             return Result<Guid>.FailResult("标签保存失败，请重试");
         return Result<Guid>.SuccessResult(tag.Id);

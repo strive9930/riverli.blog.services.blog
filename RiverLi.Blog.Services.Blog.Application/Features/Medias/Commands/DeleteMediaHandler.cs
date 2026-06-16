@@ -16,20 +16,17 @@ public class DeleteMediaHandler : IRequestHandler<DeleteMediaCommand, Result>
 {
     private readonly IRepository<Media, Guid> _repository;
     private readonly ICurrentUser _currentUser;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly IWebHostEnvironment _env;
     private readonly ILogger<DeleteMediaHandler> _logger;
 
     public DeleteMediaHandler(
         IRepository<Media, Guid> repository,
         ICurrentUser currentUser,
-        IUnitOfWork unitOfWork,
         IWebHostEnvironment env,
         ILogger<DeleteMediaHandler> logger)
     {
         _repository = repository;
         _currentUser = currentUser;
-        _unitOfWork = unitOfWork;
         _env = env;
         _logger = logger;
     }
@@ -48,7 +45,7 @@ public class DeleteMediaHandler : IRequestHandler<DeleteMediaCommand, Result>
             File.Delete(fullPath);
 
         await _repository.DeleteAsync(media, cancellationToken);
-        var saved = await _unitOfWork.SaveEntitiesAsync(cancellationToken);
+        var saved = await _repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
         if (!saved)
             return Result.FailResult("删除失败，请重试");
 

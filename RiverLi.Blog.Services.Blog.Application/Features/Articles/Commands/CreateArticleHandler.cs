@@ -13,16 +13,13 @@ public class CreateArticleHandler : IRequestHandler<CreateArticleCommand, Result
 {
     private readonly IRepository<Article, Guid> _repository;
     private readonly ICurrentUser _currentUser;
-    private readonly IUnitOfWork _unitOfWork;
 
     public CreateArticleHandler(
         IRepository<Article, Guid> repository, 
-        ICurrentUser currentUser,
-        IUnitOfWork unitOfWork)
+        ICurrentUser currentUser)
     {
         _repository = repository;
         _currentUser = currentUser;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task<Result<Guid>> Handle(CreateArticleCommand request, CancellationToken cancellationToken)
@@ -50,7 +47,7 @@ public class CreateArticleHandler : IRequestHandler<CreateArticleCommand, Result
             article.SetTags(request.TagIds);
 
         await _repository.AddAsync(article, cancellationToken);
-        var saved = await _unitOfWork.SaveEntitiesAsync(cancellationToken);
+        var saved = await _repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
         if (!saved)
             return Result<Guid>.FailResult("文章保存失败，请重试");
 

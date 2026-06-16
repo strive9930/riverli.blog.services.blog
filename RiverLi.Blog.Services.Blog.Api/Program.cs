@@ -56,7 +56,6 @@ public class Program
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddScoped<IStorageService, LocalFileStorageService>();    
         builder.Services.AddScoped<RiverDbContext>(provider => provider.GetRequiredService<BlogDbContext>());
-        builder.Services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<BlogDbContext>());
         
         builder.Services.AddScoped(typeof(IRepository<,>), typeof(RiverLi.Blog.Infrastructure.Shared.Repositories.EfRepository<,>));
         builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateArticleHandler).Assembly));
