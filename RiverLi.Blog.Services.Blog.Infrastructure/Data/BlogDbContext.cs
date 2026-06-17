@@ -23,6 +23,8 @@ public class BlogDbContext : RiverDbContext
     public DbSet<Tag> Tags => Set<Tag>();
     public DbSet<ArticleTag> ArticleTags => Set<ArticleTag>();
     public DbSet<Media> Media => Set<Media>();
+    
+    public DbSet<SiteNavigation> SiteNavigations => Set<SiteNavigation>();
 
     public BlogDbContext(
         DbContextOptions<BlogDbContext> options,

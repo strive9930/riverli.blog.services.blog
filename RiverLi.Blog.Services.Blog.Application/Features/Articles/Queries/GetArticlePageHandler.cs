@@ -88,7 +88,7 @@ public class GetArticlePageHandler : IRequestHandler<GetArticlePageQuery, Result
 
         // 12. 写入本地内存缓存，1 分钟后自动过期
         //     目的：高频访问的文章列表（如首页）在 TTL 内直接走内存，大幅降低数据库压力
-        _cache.Set(cacheKey, result, TimeSpan.FromMinutes(1));
+        _cache.Set(cacheKey, result, TimeSpan.FromMinutes(0.5));
 
         return Result<PagedResult<ArticleDto>>.SuccessResult(result);
     }

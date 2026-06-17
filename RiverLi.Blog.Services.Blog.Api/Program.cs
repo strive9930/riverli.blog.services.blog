@@ -1,8 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using FluentValidation;
 using RiverLi.Blog.Infrastructure.Shared.Data;
 using RiverLi.DDD.Core.Domain.Repositories;
 using RiverLi.Blog.Infrastructure.Shared.Extensions;
 using RiverLi.Blog.Infrastructure.Shared.OpenApi;
+using RiverLi.Blog.Services.Blog.Application.Common.Behaviors;
 using RiverLi.Blog.Services.Blog.Application.Features.Articles.Commands;
 using RiverLi.Blog.Services.Blog.Application.Interfaces;
 using RiverLi.Blog.Services.Blog.Infrastructure.Data;
@@ -66,7 +68,15 @@ public class Program
         builder.Services.AddScoped<RiverDbContext>(provider => provider.GetRequiredService<BlogDbContext>());
         
         builder.Services.AddScoped(typeof(IRepository<,>), typeof(RiverLi.Blog.Infrastructure.Shared.Repositories.EfRepository<,>));
-        builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateArticleHandler).Assembly));
+        builder.Services.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssembly(typeof(CreateArticleHandler).Assembly);
+            cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+            cfg.AddOpenBehavior(typeof(ConcurrencyBehavior<,>));
+        });
+        
+        // FluentValidation 自动扫描注册
+        builder.Services.AddValidatorsFromAssemblyContaining<CreateArticleCommandValidator>();
 
         builder.Services.AddRiverJwtAuthentication(builder.Configuration);
         builder.Services.AddAuthorization(); 
