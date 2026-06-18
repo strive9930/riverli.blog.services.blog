@@ -11,7 +11,7 @@ using RiverLi.DDD.Core.Domain.Repositories;
 
 namespace RiverLi.Blog.Services.Blog.Application.Features.Comments.Queries;
 
-public class GetCommentPageHandler : IRequestHandler<GetCommentPageQuery, Result<PagedResult<CommentDto>>>
+public class GetCommentPageHandler : IRequestHandler<GetCommentPageQuery, PagedResult<CommentDto>>
 {
     private readonly IRepository<Comment, Guid> _commentRepo;
     private readonly IRepository<Article, Guid> _articleRepo;
@@ -27,12 +27,12 @@ public class GetCommentPageHandler : IRequestHandler<GetCommentPageQuery, Result
         _cache = cache;
     }
 
-    public async Task<Result<PagedResult<CommentDto>>> Handle(GetCommentPageQuery request, CancellationToken cancellationToken)
+    public async Task<PagedResult<CommentDto>> Handle(GetCommentPageQuery request, CancellationToken cancellationToken)
     {
         var cacheKey = $"comments_page_{request.PageIndex}_{request.PageSize}_{request.Status}_{request.ArticleId}";
 
         if (_cache.TryGetValue<PagedResult<CommentDto>>(cacheKey, out var cached))
-            return Result<PagedResult<CommentDto>>.SuccessResult(cached);
+            return cached;
 
         var query = _commentRepo.AsQueryable();
 
@@ -59,6 +59,6 @@ public class GetCommentPageHandler : IRequestHandler<GetCommentPageQuery, Result
         var result = PagedResult<CommentDto>.SuccessResult(items, totalCount, request.PageIndex, request.PageSize);
         _cache.Set(cacheKey, result, TimeSpan.FromMinutes(1));
 
-        return Result<PagedResult<CommentDto>>.SuccessResult(result);
+        return result;
     }
 }

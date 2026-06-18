@@ -37,12 +37,17 @@ public class SiteNavigation : BaseEntity<Guid>, IAggregateRoot
     /// 是否可见 (支持后台一键隐藏某个菜单项)
     /// </summary>
     public bool IsVisible { get; private set; }
+    /// <summary>
+    /// 父级导航 ID (为 null 时表示顶级菜单)
+    /// </summary>
+    public Guid? ParentId { get; private set; }
 
     // 给 EF Core 预留的无参构造
     private SiteNavigation() { }
 
-    public SiteNavigation(string title, string linkUrl, string? icon, int sortOrder, string target = "_self", bool isVisible = true)
+    public SiteNavigation(Guid? parentId,string title, string linkUrl, string? icon, int sortOrder, string target = "_self", bool isVisible = true)
     {
+        ParentId = parentId;
         Title = title;
         LinkUrl = linkUrl;
         Icon = icon;
@@ -54,8 +59,9 @@ public class SiteNavigation : BaseEntity<Guid>, IAggregateRoot
     /// <summary>
     /// 领域行为：更新导航信息
     /// </summary>
-    public void Update(string title, string linkUrl, string? icon, int sortOrder, string target, bool isVisible)
+    public void Update(Guid? parentId,string title, string linkUrl, string? icon, int sortOrder, string target, bool isVisible)
     {
+        ParentId = parentId;
         Title = title;
         LinkUrl = linkUrl;
         Icon = icon;

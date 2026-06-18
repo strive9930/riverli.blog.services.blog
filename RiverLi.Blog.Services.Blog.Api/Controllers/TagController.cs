@@ -53,5 +53,13 @@ namespace RiverLi.Blog.Services.Blog.Api.Controllers
             var result = await _mediator.Send(new DeleteTagCommand(id));
             return result.Success ? Ok(result) : BadRequest(result.Message);
         }
+        /// <summary>获取标签选项列表 (供下拉框使用)</summary>
+        [HttpGet("options")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetOptions()
+        {
+            var result = await _mediator.Send(new GetTagOptionsQuery());
+            return result.Success ? Ok(result) : BadRequest(result.Message);
+        }
     }
 }

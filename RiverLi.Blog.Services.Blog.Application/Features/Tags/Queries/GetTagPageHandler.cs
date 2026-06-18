@@ -11,7 +11,7 @@ using RiverLi.DDD.Core.Domain.Repositories;
 
 namespace RiverLi.Blog.Services.Blog.Application.Features.Tags.Queries;
 
-public class GetTagPageHandler : IRequestHandler<GetTagPageQuery, Result<PagedResult<TagDto>>>
+public class GetTagPageHandler : IRequestHandler<GetTagPageQuery, PagedResult<TagDto>>
 {
     private readonly IRepository<Tag, Guid> _tagRepo;
     private readonly IRepository<ArticleTag, Guid> _articleTagRepo;
@@ -27,12 +27,12 @@ public class GetTagPageHandler : IRequestHandler<GetTagPageQuery, Result<PagedRe
         _cache = cache;
     }
 
-    public async Task<Result<PagedResult<TagDto>>> Handle(GetTagPageQuery request, CancellationToken cancellationToken)
+    public async Task<PagedResult<TagDto>> Handle(GetTagPageQuery request, CancellationToken cancellationToken)
     {
         var cacheKey = $"tags_page_{request.PageIndex}_{request.PageSize}_{request.Keyword}";
 
         if (_cache.TryGetValue<PagedResult<TagDto>>(cacheKey, out var cached))
-            return Result<PagedResult<TagDto>>.SuccessResult(cached);
+            return cached;
 
         var query = _tagRepo.AsQueryable().Where(t => !t.IsDeleted);
 
@@ -54,6 +54,6 @@ public class GetTagPageHandler : IRequestHandler<GetTagPageQuery, Result<PagedRe
         var result = PagedResult<TagDto>.SuccessResult(items, totalCount, request.PageIndex, request.PageSize);
         _cache.Set(cacheKey, result, TimeSpan.FromMinutes(1));
 
-        return Result<PagedResult<TagDto>>.SuccessResult(result);
+        return result;
     }
 }

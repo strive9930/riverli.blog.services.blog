@@ -16,7 +16,7 @@ namespace RiverLi.Blog.Services.Blog.Application.Features.Articles.Queries;
 /// 文章分页查询处理器
 /// 支持关键字搜索、分类/标签筛选、状态过滤、排序，结果通过 IMemoryCache 本地缓存 1 分钟
 /// </summary>
-public class GetArticlePageHandler : IRequestHandler<GetArticlePageQuery, Result<PagedResult<ArticleDto>>>
+public class GetArticlePageHandler : IRequestHandler<GetArticlePageQuery, PagedResult<ArticleDto>>
 {
     private readonly IRepository<Article, Guid> _repository;
     private readonly IMemoryCache _cache;
@@ -27,14 +27,14 @@ public class GetArticlePageHandler : IRequestHandler<GetArticlePageQuery, Result
         _cache = cache;
     }
 
-    public async Task<Result<PagedResult<ArticleDto>>> Handle(GetArticlePageQuery request, CancellationToken cancellationToken)
+    public async Task<PagedResult<ArticleDto>> Handle(GetArticlePageQuery request, CancellationToken cancellationToken)
     {
         // 1. 构造缓存 Key：组合所有查询参数，确保不同查询条件命中不同缓存
         var cacheKey = $"articles_page_{request.PageIndex}_{request.PageSize}_{request.Keyword}_{request.CategoryId}_{request.TagId}_{request.Status}_{request.SortBy}";
 
         // 2. 缓存命中 → 直接返回，跳过数据库查询
         if (_cache.TryGetValue<PagedResult<ArticleDto>>(cacheKey, out var cached))
-            return Result<PagedResult<ArticleDto>>.SuccessResult(cached);
+            return cached;
 
         // 3. 构建基础查询：排除已软删除的文章
         var query = _repository.AsQueryable().Where(a => !a.IsDeleted);
@@ -90,6 +90,6 @@ public class GetArticlePageHandler : IRequestHandler<GetArticlePageQuery, Result
         //     目的：高频访问的文章列表（如首页）在 TTL 内直接走内存，大幅降低数据库压力
         _cache.Set(cacheKey, result, TimeSpan.FromMinutes(0.5));
 
-        return Result<PagedResult<ArticleDto>>.SuccessResult(result);
+        return result;
     }
 }

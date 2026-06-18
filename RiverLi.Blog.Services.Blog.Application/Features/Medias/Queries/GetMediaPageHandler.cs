@@ -11,7 +11,7 @@ using RiverLi.DDD.Core.Domain.Repositories;
 
 namespace RiverLi.Blog.Services.Blog.Application.Features.Medias.Queries;
 
-public class GetMediaPageHandler : IRequestHandler<GetMediaPageQuery, Result<PagedResult<MediaDto>>>
+public class GetMediaPageHandler : IRequestHandler<GetMediaPageQuery, PagedResult<MediaDto>>
 {
     private readonly IRepository<Media, Guid> _repository;
     private readonly IMemoryCache _cache;
@@ -22,12 +22,12 @@ public class GetMediaPageHandler : IRequestHandler<GetMediaPageQuery, Result<Pag
         _cache = cache;
     }
 
-    public async Task<Result<PagedResult<MediaDto>>> Handle(GetMediaPageQuery request, CancellationToken cancellationToken)
+    public async Task<PagedResult<MediaDto>> Handle(GetMediaPageQuery request, CancellationToken cancellationToken)
     {
         var cacheKey = $"media_page_{request.PageIndex}_{request.PageSize}_{request.Keyword}_{request.ContentType}";
 
         if (_cache.TryGetValue<PagedResult<MediaDto>>(cacheKey, out var cached))
-            return Result<PagedResult<MediaDto>>.SuccessResult(cached);
+            return cached;
 
         var query = _repository.AsQueryable();
 
@@ -49,6 +49,6 @@ public class GetMediaPageHandler : IRequestHandler<GetMediaPageQuery, Result<Pag
         var result = PagedResult<MediaDto>.SuccessResult(items, totalCount, request.PageIndex, request.PageSize);
         _cache.Set(cacheKey, result, TimeSpan.FromMinutes(1));
 
-        return Result<PagedResult<MediaDto>>.SuccessResult(result);
+        return result;
     }
 }

@@ -12,4 +12,4 @@ public record GetCommentPageQuery(
     int PageSize = 10,
     string? Status = null,
     Guid? ArticleId = null
-) : IRequest<Result<PagedResult<CommentDto>>>;
+) : IRequest<PagedResult<CommentDto>>;

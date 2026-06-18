@@ -29,6 +29,7 @@ namespace RiverLi.Blog.Services.Blog.Api.Controllers
 
         /// <summary>获取分类扁平选项 (供下拉框使用)</summary>
         [HttpGet("options")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetOptions()
         {
             var result = await _mediator.Send(new GetCategoryOptionsQuery());

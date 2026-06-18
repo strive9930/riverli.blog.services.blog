@@ -16,4 +16,4 @@ public record GetArticlePageQuery(
     Guid? TagId = null,
     string? Status = null,
     string? SortBy = null
-) : IRequest<Result<PagedResult<ArticleDto>>>;
+) : IRequest<PagedResult<ArticleDto>>;

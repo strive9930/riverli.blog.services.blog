@@ -12,4 +12,4 @@ public record GetMediaPageQuery(
     int PageSize = 12,
     string? Keyword = null,
     string? ContentType = null
-) : IRequest<Result<PagedResult<MediaDto>>>;
+) : IRequest<PagedResult<MediaDto>>;
