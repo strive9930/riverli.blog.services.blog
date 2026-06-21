@@ -20,6 +20,7 @@ public static class DbSeeder
 
         await SeedCategoriesAsync(dbContext, logger, ct);
         await SeedTagsAsync(dbContext, logger, ct);
+        await SeedSiteNavigationsAsync(dbContext, logger, ct);
         await SeedSampleArticleAsync(dbContext, logger, ct);
 
         logger.LogInformation("种子数据初始化完成。");
@@ -79,6 +80,52 @@ public static class DbSeeder
         await dbContext.SaveChangesAsync(ct);
 
         logger.LogInformation("已初始化 {Count} 个默认标签。", tags.Length);
+    }
+
+    /// <summary>
+    /// 初始化前台导航菜单（存在则更新，不存在则新增）
+    /// </summary>
+    private static async Task SeedSiteNavigationsAsync(BlogDbContext dbContext, ILogger logger, CancellationToken ct)
+    {
+        var defaults = new (string Title, string Url, string? Icon, int Sort, string Target)[]
+        {
+            ("首页",     "/",         null, 1, "_self"),
+            ("关于我",   "/about",    null, 2, "_self"),
+            ("文章归档", "/archives", null, 3, "_self"),
+            ("友链",     "/friend",   null, 4, "_self"),
+            ("留言墙",   "/wall",     null, 5, "_self"),
+            ("说说",     "/record",   null, 6, "_self"),
+        };
+
+        var existing = await dbContext.SiteNavigations.IgnoreQueryFilters().ToListAsync(ct);
+        var updated = 0;
+        var added = 0;
+
+        foreach (var (title, url, icon, sort, target) in defaults)
+        {
+            var nav = existing.FirstOrDefault(n => n.Title == title);
+            if (nav != null)
+            {
+                nav.Update(null, title, url, icon, sort, target, true);
+                updated++;
+            }
+            else
+            {
+                nav = new SiteNavigation(null, title, url, icon, sort, target, true);
+                await dbContext.SiteNavigations.AddAsync(nav, ct);
+                added++;
+            }
+        }
+
+        if (added > 0 || updated > 0)
+        {
+            await dbContext.SaveChangesAsync(ct);
+            logger.LogInformation("导航菜单：新增 {Added} 项，更新 {Updated} 项。", added, updated);
+        }
+        else
+        {
+            logger.LogInformation("导航菜单已是最新，跳过。");
+        }
     }
 
     /// <summary>
