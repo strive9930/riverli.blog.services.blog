@@ -25,6 +25,10 @@ public class BlogDbContext : RiverDbContext
     public DbSet<Media> Media => Set<Media>();
     
     public DbSet<SiteNavigation> SiteNavigations => Set<SiteNavigation>();
+    public DbSet<FriendLink> FriendLinks => Set<FriendLink>();
+    public DbSet<Message> Messages => Set<Message>();
+    public DbSet<Record> Records => Set<Record>();
+    public DbSet<ArticleLike> ArticleLikes => Set<ArticleLike>();
 
     public BlogDbContext(
         DbContextOptions<BlogDbContext> options,

@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using RiverLi.Blog.Services.Blog.Application.Common.Dto;
 using RiverLi.Blog.Services.Blog.Domain.Aggregates;
+using RiverLi.Blog.Services.Blog.Domain.Enum;
 using RiverLi.DDD.Core.Application.Common.Models;
 using RiverLi.DDD.Core.Domain.Repositories;
 
@@ -32,9 +33,9 @@ public class GetArticlePageHandler : IRequestHandler<GetArticlePageQuery, PagedR
         // 1. 构造缓存 Key：组合所有查询参数，确保不同查询条件命中不同缓存
         var cacheKey = $"articles_page_{request.PageIndex}_{request.PageSize}_{request.Keyword}_{request.CategoryId}_{request.TagId}_{request.Status}_{request.SortBy}";
 
-        // 2. 缓存命中 → 直接返回，跳过数据库查询
-        if (_cache.TryGetValue<PagedResult<ArticleDto>>(cacheKey, out var cached))
-            return cached;
+        // 2. TODO: 缓存暂时关闭
+        // if (_cache.TryGetValue<PagedResult<ArticleDto>>(cacheKey, out var cached))
+        //     return cached;
 
         // 3. 构建基础查询：排除已软删除的文章
         var query = _repository.AsQueryable().Where(a => !a.IsDeleted);
@@ -55,10 +56,12 @@ public class GetArticlePageHandler : IRequestHandler<GetArticlePageQuery, PagedR
         if (request.TagId.HasValue)
             query = query.Where(a => a.Tags.Any(t => t.TagId == request.TagId.Value));
 
-        // 7. 按发布状态筛选 (Draft / Published)
+        // 7. 按发布状态筛选 (Draft / Published)；公开访问默认仅展示已发布文章
         if (!string.IsNullOrWhiteSpace(request.Status) &&
             System.Enum.TryParse<RiverLi.Blog.Services.Blog.Domain.Enum.ArticleStatus>(request.Status, true, out var status))
             query = query.Where(a => a.Status == status);
+        else
+            query = query.Where(a => a.Status == ArticleStatus.Published);
 
         // 8. 先统计总数 (在分页之前)
         var totalCount = await query.CountAsync(cancellationToken);
@@ -76,9 +79,9 @@ public class GetArticlePageHandler : IRequestHandler<GetArticlePageQuery, PagedR
             .Skip((request.PageIndex - 1) * request.PageSize)
             .Take(request.PageSize)
             .Select(a => new ArticleDto(
-                a.Id, a.Title, a.Summary, a.CoverUrl, a.AuthorName,
-                a.Status.ToString(), null,
-                a.Tags.Select(t => t.TagId.ToString()).ToList(),
+                a.Id, a.Title, a.Slug, a.Summary, a.CoverUrl, a.AuthorName,
+                a.Status.ToString(), a.Category != null ? a.Category.Name : null,
+                a.Tags.Select(t => t.Tag!.Name).ToList(),
                 a.ViewCount, a.Comments.Count, a.CreateTime
             ))
             .ToListAsync(cancellationToken);
@@ -86,9 +89,8 @@ public class GetArticlePageHandler : IRequestHandler<GetArticlePageQuery, PagedR
         // 11. 组装分页结果
         var result = PagedResult<ArticleDto>.SuccessResult(items, totalCount, request.PageIndex, request.PageSize);
 
-        // 12. 写入本地内存缓存，1 分钟后自动过期
-        //     目的：高频访问的文章列表（如首页）在 TTL 内直接走内存，大幅降低数据库压力
-        _cache.Set(cacheKey, result, TimeSpan.FromMinutes(0.5));
+        // 12. TODO: 缓存暂时关闭
+        // _cache.Set(cacheKey, result, TimeSpan.FromMinutes(0.5));
 
         return result;
     }

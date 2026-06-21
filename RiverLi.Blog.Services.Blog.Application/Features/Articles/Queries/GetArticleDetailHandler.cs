@@ -26,17 +26,18 @@ public class GetArticleDetailHandler : IRequestHandler<GetArticleDetailQuery, Re
     {
         var cacheKey = $"article_detail_{request.Id}";
 
-        if (_cache.TryGetValue<ArticleDetailDto>(cacheKey, out var cached))
-            return Result<ArticleDetailDto>.SuccessResult(cached);
+        // TODO: 缓存暂时关闭
+        // if (_cache.TryGetValue<ArticleDetailDto>(cacheKey, out var cached))
+        //     return Result<ArticleDetailDto>.SuccessResult(cached);
 
         var article = await _repository
             .AsQueryable()
             .Where(a => !a.IsDeleted && a.Id == request.Id)
             .Select(a => new ArticleDetailDto(
-                a.Id, a.Title, a.Content, a.Summary, a.CoverUrl,
+                a.Id, a.Title, a.Slug, a.Content, a.Summary, a.CoverUrl,
                 a.AuthorId, a.AuthorName, a.Status.ToString(),
-                a.CategoryId, null,
-                a.Tags.Select(t => new TagDto(t.TagId, "", "", 0)).ToList(),
+                a.CategoryId, a.Category != null ? a.Category.Name : null,
+                a.Tags.Select(t => new TagDto(t.TagId, t.Tag!.Name, t.Tag.Slug, 0)).ToList(),
                 a.ViewCount, a.Comments.Count, a.CreateTime, a.UpdateTime
             ))
             .FirstOrDefaultAsync(cancellationToken);
@@ -44,7 +45,7 @@ public class GetArticleDetailHandler : IRequestHandler<GetArticleDetailQuery, Re
         if (article == null)
             return Result<ArticleDetailDto>.FailResult("文章不存在");
 
-        _cache.Set(cacheKey, article, TimeSpan.FromMinutes(3));
+        // _cache.Set(cacheKey, article, TimeSpan.FromMinutes(3));
         return Result<ArticleDetailDto>.SuccessResult(article);
     }
 }

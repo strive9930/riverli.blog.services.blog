@@ -7,7 +7,6 @@ using RiverLi.Blog.Services.Blog.Application.Features.Categories.Queries;
 
 namespace RiverLi.Blog.Services.Blog.Api.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("api/blog/[controller]")]
     public class CategoryController: BaseApiController
@@ -19,7 +18,8 @@ namespace RiverLi.Blog.Services.Blog.Api.Controllers
             _mediator = mediator;
         }
 
-        /// <summary>获取分类树形结构</summary>
+        /// <summary>公开：获取分类树形结构</summary>
+        [AllowAnonymous]
         [HttpGet("tree")]
         public async Task<IActionResult> GetTree()
         {
@@ -27,16 +27,17 @@ namespace RiverLi.Blog.Services.Blog.Api.Controllers
             return result.Success ? Ok(result) : BadRequest(result.Message);
         }
 
-        /// <summary>获取分类扁平选项 (供下拉框使用)</summary>
-        [HttpGet("options")]
+        /// <summary>公开：获取分类扁平选项 (供下拉框使用)</summary>
         [AllowAnonymous]
+        [HttpGet("options")]
         public async Task<IActionResult> GetOptions()
         {
             var result = await _mediator.Send(new GetCategoryOptionsQuery());
             return result.Success ? Ok(result) : BadRequest(result.Message);
         }
 
-        /// <summary>新增分类</summary>
+        /// <summary>新增分类（需登录）</summary>
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateCategoryCommand command)
         {
@@ -44,7 +45,8 @@ namespace RiverLi.Blog.Services.Blog.Api.Controllers
             return result.Success ? Ok(result) : BadRequest(result.Message);
         }
 
-        /// <summary>修改分类信息</summary>
+        /// <summary>修改分类信息（需登录）</summary>
+        [Authorize]
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateCategoryCommand command)
         {
@@ -55,7 +57,8 @@ namespace RiverLi.Blog.Services.Blog.Api.Controllers
             return result.Success ? Ok(result) : BadRequest(result.Message);
         }
 
-        /// <summary>删除分类 (软删除)</summary>
+        /// <summary>删除分类 - 软删除（需登录）</summary>
+        [Authorize]
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {

@@ -13,6 +13,7 @@ namespace RiverLi.Blog.Services.Blog.Domain.Aggregates;
 public class Article : BaseEntity<Guid>, IAggregateRoot
 {
     public string Title { get; private set; }
+    public string Slug { get; private set; }
     public string Content { get; private set; } // 推荐存 Markdown 原文
     public string Summary { get; private set; }
     public string? CoverUrl { get; private set; }
@@ -33,11 +34,15 @@ public class Article : BaseEntity<Guid>, IAggregateRoot
     private readonly List<ArticleTag> _tags = new();
     public IReadOnlyCollection<ArticleTag> Tags => _tags.AsReadOnly();
 
+    // 读模型：EF Core 导航 (不通过此属性修改 Category)
+    public Category? Category { get; private set; }
+
     private Article() { } 
 
-    public Article(string title, string content, string summary, string? coverUrl, Guid categoryId, string authorId, string authorName)
+    public Article(string title, string slug, string content, string summary, string? coverUrl, Guid categoryId, string authorId, string authorName)
     {
         Title = title;
+        Slug = slug;
         Content = content;
         Summary = summary;
         CoverUrl = coverUrl;
@@ -54,9 +59,10 @@ public class Article : BaseEntity<Guid>, IAggregateRoot
     /// <summary>
     /// 领域行为：更新文章基础内容
     /// </summary>
-    public void Update(string title, string content, string summary, string? coverUrl, Guid categoryId)
+    public void Update(string title, string slug, string content, string summary, string? coverUrl, Guid categoryId)
     {
         Title = title;
+        Slug = slug;
         Content = content;
         Summary = summary;
         CoverUrl = coverUrl;

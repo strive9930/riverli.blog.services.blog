@@ -31,8 +31,9 @@ public class GetTagPageHandler : IRequestHandler<GetTagPageQuery, PagedResult<Ta
     {
         var cacheKey = $"tags_page_{request.PageIndex}_{request.PageSize}_{request.Keyword}";
 
-        if (_cache.TryGetValue<PagedResult<TagDto>>(cacheKey, out var cached))
-            return cached;
+        // TODO: 缓存暂时关闭
+        // if (_cache.TryGetValue<PagedResult<TagDto>>(cacheKey, out var cached))
+        //     return cached;
 
         var query = _tagRepo.AsQueryable().Where(t => !t.IsDeleted);
 
@@ -52,7 +53,7 @@ public class GetTagPageHandler : IRequestHandler<GetTagPageQuery, PagedResult<Ta
             .ToListAsync(cancellationToken);
 
         var result = PagedResult<TagDto>.SuccessResult(items, totalCount, request.PageIndex, request.PageSize);
-        _cache.Set(cacheKey, result, TimeSpan.FromMinutes(1));
+        // _cache.Set(cacheKey, result, TimeSpan.FromMinutes(1));
 
         return result;
     }

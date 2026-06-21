@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using RiverLi.Blog.Services.Blog.Application.Common;
 using RiverLi.Blog.Services.Blog.Domain.Aggregates;
 using RiverLi.DDD.Core.Application.Common.Interfaces;
 using RiverLi.DDD.Core.Application.Common.Models;
@@ -33,8 +34,13 @@ public class CreateArticleHandler : IRequestHandler<CreateArticleCommand, Result
         if (string.IsNullOrWhiteSpace(request.Content))
             return Result<Guid>.FailResult("文章正文内容不能为空");
 
+        var slug = !string.IsNullOrWhiteSpace(request.Slug) 
+            ? request.Slug 
+            : SlugHelper.Generate(request.Title);
+
         var article = new Article(
             title: request.Title,
+            slug: slug,
             content: request.Content,
             summary: request.Summary,
             coverUrl: request.CoverUrl,

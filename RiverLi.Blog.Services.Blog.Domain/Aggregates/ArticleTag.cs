@@ -11,6 +11,9 @@ public class ArticleTag : BaseEntity<Guid>, IAggregateRoot
     public Guid ArticleId { get; private set; }
     public Guid TagId { get; private set; }
 
+    // 读模型：EF Core 导航
+    public Tag? Tag { get; private set; }
+
     private ArticleTag() { }
 
     internal ArticleTag(Guid articleId, Guid tagId)

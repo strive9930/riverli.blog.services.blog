@@ -9,6 +9,7 @@ namespace RiverLi.Blog.Services.Blog.Application.Common.Dto;
 public record ArticleDto(
     Guid Id,
     string Title,
+    string Slug,
     string Summary,
     string? CoverUrl,
     string AuthorName,

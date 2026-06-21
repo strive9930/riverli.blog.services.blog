@@ -64,6 +64,12 @@ public class Program
         //builder.Services.AddScoped<IStorageService, AliyunOssStorageService>();
 
         #endregion
+
+        #region 邮件通知
+
+        builder.Services.AddScoped<IEmailService, SmtpEmailService>();
+
+        #endregion
         
         builder.Services.AddScoped<RiverDbContext>(provider => provider.GetRequiredService<BlogDbContext>());
         

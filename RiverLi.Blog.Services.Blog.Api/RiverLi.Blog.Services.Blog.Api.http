@@ -1,6 +1,6 @@
 @RiverLi.Blog.Services.Blog.Api_HostAddress = http://localhost:5002
 
-GET {{RiverLi.Blog.Services.Blog.Api_HostAddress}}/weatherforecast/
+//GET {{RiverLi.Blog.Services.Blog.Api_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###

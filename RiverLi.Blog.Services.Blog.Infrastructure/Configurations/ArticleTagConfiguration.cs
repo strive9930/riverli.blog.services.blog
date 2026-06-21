@@ -14,5 +14,10 @@ public class ArticleTagConfiguration : IEntityTypeConfiguration<ArticleTag>
         builder.ToTable("Blog_ArticleTags");
 
         builder.HasIndex(x => new { x.ArticleId, x.TagId }).IsUnique();
+
+        builder.HasOne(x => x.Tag)
+            .WithMany()
+            .HasForeignKey(x => x.TagId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -1,6 +1,24 @@
-# Ignore obj and bin folders
+# IDE & Editor
+.idea/
+.vs/
+.vscode/
+*.user
+*.suo
+*.DotSettings.user
+
+# Build artifacts
 **/obj/**
 **/bin/**
+*.nupkg
 
-# Ignore .idea folder
-.idea/
+# Local / sensitive config overrides
+appsettings.*.local.json
+appsettings.*.Development.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.*

@@ -26,8 +26,9 @@ public class GetMediaPageHandler : IRequestHandler<GetMediaPageQuery, PagedResul
     {
         var cacheKey = $"media_page_{request.PageIndex}_{request.PageSize}_{request.Keyword}_{request.ContentType}";
 
-        if (_cache.TryGetValue<PagedResult<MediaDto>>(cacheKey, out var cached))
-            return cached;
+        // TODO: 缓存暂时关闭
+        // if (_cache.TryGetValue<PagedResult<MediaDto>>(cacheKey, out var cached))
+        //     return cached;
 
         var query = _repository.AsQueryable();
 
@@ -47,7 +48,7 @@ public class GetMediaPageHandler : IRequestHandler<GetMediaPageQuery, PagedResul
             .ToListAsync(cancellationToken);
 
         var result = PagedResult<MediaDto>.SuccessResult(items, totalCount, request.PageIndex, request.PageSize);
-        _cache.Set(cacheKey, result, TimeSpan.FromMinutes(1));
+        // _cache.Set(cacheKey, result, TimeSpan.FromMinutes(1));
 
         return result;
     }

@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using RiverLi.Blog.Services.Blog.Application.Common;
 using RiverLi.Blog.Services.Blog.Domain.Aggregates;
 using RiverLi.DDD.Core.Application.Common.Interfaces;
 using RiverLi.DDD.Core.Application.Common.Models;
@@ -32,7 +33,11 @@ public class UpdateArticleHandler : IRequestHandler<UpdateArticleCommand, Result
         if (article.AuthorId != _currentUser.Id.ToString())
             return Result.FailResult("只能修改自己的文章");
 
-        article.Update(request.Title, request.Content, request.Summary, request.CoverUrl, request.CategoryId);
+        var slug = !string.IsNullOrWhiteSpace(request.Slug) 
+            ? request.Slug 
+            : SlugHelper.Generate(request.Title);
+
+        article.Update(request.Title, slug, request.Content, request.Summary, request.CoverUrl, request.CategoryId);
 
         if (request.TagIds != null)
             article.SetTags(request.TagIds);

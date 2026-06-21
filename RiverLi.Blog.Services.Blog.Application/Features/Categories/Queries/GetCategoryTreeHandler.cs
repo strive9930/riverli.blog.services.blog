@@ -32,8 +32,9 @@ public class GetCategoryTreeHandler : IRequestHandler<GetCategoryTreeQuery, Resu
     {
         const string cacheKey = "category_tree";
 
-        if (_cache.TryGetValue<List<CategoryDto>>(cacheKey, out var cached))
-            return Result<List<CategoryDto>>.SuccessResult(cached);
+        // TODO: 缓存暂时关闭
+        // if (_cache.TryGetValue<List<CategoryDto>>(cacheKey, out var cached))
+        //     return Result<List<CategoryDto>>.SuccessResult(cached);
 
         var categories = await _categoryRepo
             .AsQueryable()
@@ -61,7 +62,7 @@ public class GetCategoryTreeHandler : IRequestHandler<GetCategoryTreeQuery, Resu
                 roots.Add(dto);
         }
 
-        _cache.Set(cacheKey, roots, TimeSpan.FromMinutes(3));
+        // _cache.Set(cacheKey, roots, TimeSpan.FromMinutes(3));
         return Result<List<CategoryDto>>.SuccessResult(roots);
     }
 }

@@ -5,11 +5,12 @@ using RiverLi.DDD.Core.Application.Common.Models;
 namespace RiverLi.Blog.Services.Blog.Application.Features.Comments.Queries;
 
 /// <summary>
-/// 评论分页列表 (后台审核�?
+/// 评论分页列表
 /// </summary>
-public record GetCommentPageQuery(
-    int PageIndex = 1,
-    int PageSize = 10,
-    string? Status = null,
-    Guid? ArticleId = null
-) : IRequest<PagedResult<CommentDto>>;
+public record GetCommentPageQuery : IRequest<PagedResult<CommentDto>>
+{
+    public int PageIndex { get; init; } = 1;
+    public int PageSize { get; init; } = 10;
+    public string? Status { get; init; }
+    public Guid? ArticleId { get; init; }
+}

@@ -31,8 +31,9 @@ public class GetCommentPageHandler : IRequestHandler<GetCommentPageQuery, PagedR
     {
         var cacheKey = $"comments_page_{request.PageIndex}_{request.PageSize}_{request.Status}_{request.ArticleId}";
 
-        if (_cache.TryGetValue<PagedResult<CommentDto>>(cacheKey, out var cached))
-            return cached;
+        // TODO: 缓存暂时关闭
+        // if (_cache.TryGetValue<PagedResult<CommentDto>>(cacheKey, out var cached))
+        //     return cached;
 
         var query = _commentRepo.AsQueryable();
 
@@ -57,7 +58,7 @@ public class GetCommentPageHandler : IRequestHandler<GetCommentPageQuery, PagedR
             .ToListAsync(cancellationToken);
 
         var result = PagedResult<CommentDto>.SuccessResult(items, totalCount, request.PageIndex, request.PageSize);
-        _cache.Set(cacheKey, result, TimeSpan.FromMinutes(1));
+        // _cache.Set(cacheKey, result, TimeSpan.FromMinutes(1));
 
         return result;
     }

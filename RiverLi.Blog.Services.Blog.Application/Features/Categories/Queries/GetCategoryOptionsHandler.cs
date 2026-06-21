@@ -32,8 +32,9 @@ public class GetCategoryOptionsHandler : IRequestHandler<GetCategoryOptionsQuery
     {
         const string cacheKey = "category_options";
 
-        if (_cache.TryGetValue<List<CategoryOptionDto>>(cacheKey, out var cached))
-            return Result<List<CategoryOptionDto>>.SuccessResult(cached);
+        // TODO: 缓存暂时关闭
+        // if (_cache.TryGetValue<List<CategoryOptionDto>>(cacheKey, out var cached))
+        //     return Result<List<CategoryOptionDto>>.SuccessResult(cached);
 
         var categories = await _categoryRepo
             .AsQueryable()
@@ -51,7 +52,7 @@ public class GetCategoryOptionsHandler : IRequestHandler<GetCategoryOptionsQuery
         var result = new List<CategoryOptionDto>();
         Flatten(categories, null, 0, result);
 
-        _cache.Set(cacheKey, result, TimeSpan.FromMinutes(3));
+        // _cache.Set(cacheKey, result, TimeSpan.FromMinutes(3));
         return Result<List<CategoryOptionDto>>.SuccessResult(result);
     }
 

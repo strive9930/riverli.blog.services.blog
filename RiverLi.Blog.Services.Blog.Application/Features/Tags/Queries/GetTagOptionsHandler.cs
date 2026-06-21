@@ -27,8 +27,9 @@ public class GetTagOptionsHandler : IRequestHandler<GetTagOptionsQuery, Result<L
     {
         const string cacheKey = "tag_options";
 
-        if (_cache.TryGetValue<List<TagOptionDto>>(cacheKey, out var cached))
-            return Result<List<TagOptionDto>>.SuccessResult(cached);
+        // TODO: 缓存暂时关闭
+        // if (_cache.TryGetValue<List<TagOptionDto>>(cacheKey, out var cached))
+        //     return Result<List<TagOptionDto>>.SuccessResult(cached);
 
         var tags = await _tagRepo
             .AsQueryable()
@@ -37,7 +38,7 @@ public class GetTagOptionsHandler : IRequestHandler<GetTagOptionsQuery, Result<L
             .Select(t => new TagOptionDto(t.Id, t.Name))
             .ToListAsync(cancellationToken);
 
-        _cache.Set(cacheKey, tags, TimeSpan.FromMinutes(3));
+        // _cache.Set(cacheKey, tags, TimeSpan.FromMinutes(3));
         return Result<List<TagOptionDto>>.SuccessResult(tags);
     }
 }

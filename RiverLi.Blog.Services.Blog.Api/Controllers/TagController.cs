@@ -7,7 +7,6 @@ using RiverLi.Blog.Services.Blog.Application.Features.Tags.Queries;
 
 namespace RiverLi.Blog.Services.Blog.Api.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("api/blog/[controller]")]
     public class TagController : BaseApiController
@@ -19,7 +18,8 @@ namespace RiverLi.Blog.Services.Blog.Api.Controllers
             _mediator = mediator;
         }
 
-        /// <summary>获取标签分页列表</summary>
+        /// <summary>公开：获取标签分页列表</summary>
+        [AllowAnonymous]
         [HttpGet("page")]
         public async Task<IActionResult> GetPage([FromQuery] GetTagPageQuery query)
         {
@@ -27,7 +27,8 @@ namespace RiverLi.Blog.Services.Blog.Api.Controllers
             return result.Success ? Ok(result) : BadRequest(result.Message);
         }
 
-        /// <summary>新增标签</summary>
+        /// <summary>新增标签（需登录）</summary>
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateTagCommand command)
         {
@@ -35,7 +36,8 @@ namespace RiverLi.Blog.Services.Blog.Api.Controllers
             return result.Success ? Ok(result) : BadRequest(result.Message);
         }
 
-        /// <summary>修改标签信息</summary>
+        /// <summary>修改标签信息（需登录）</summary>
+        [Authorize]
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateTagCommand command)
         {
@@ -46,16 +48,18 @@ namespace RiverLi.Blog.Services.Blog.Api.Controllers
             return result.Success ? Ok(result) : BadRequest(result.Message);
         }
 
-        /// <summary>删除标签 (软删除)</summary>
+        /// <summary>删除标签 - 软删除（需登录）</summary>
+        [Authorize]
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
             var result = await _mediator.Send(new DeleteTagCommand(id));
             return result.Success ? Ok(result) : BadRequest(result.Message);
         }
-        /// <summary>获取标签选项列表 (供下拉框使用)</summary>
-        [HttpGet("options")]
+
+        /// <summary>公开：获取标签选项列表 (供下拉框使用)</summary>
         [AllowAnonymous]
+        [HttpGet("options")]
         public async Task<IActionResult> GetOptions()
         {
             var result = await _mediator.Send(new GetTagOptionsQuery());

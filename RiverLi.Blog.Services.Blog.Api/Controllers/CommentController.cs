@@ -18,7 +18,22 @@ namespace RiverLi.Blog.Services.Blog.Api.Controllers
             _mediator = mediator;
         }
 
-        /// <summary>获取评论分页列表 (后台审核用)</summary>
+        /// <summary>公开：获取指定文章的已审核评论</summary>
+        [AllowAnonymous]
+        [HttpGet("article/{articleId:guid}")]
+        public async Task<IActionResult> GetPublicComments(Guid articleId, [FromQuery] int pageIndex = 1, [FromQuery] int pageSize = 20)
+        {
+            var result = await _mediator.Send(new GetCommentPageQuery
+            {
+                ArticleId = articleId,
+                Status = "Approved",
+                PageIndex = pageIndex,
+                PageSize = pageSize
+            });
+            return result.Success ? Ok(result) : BadRequest(result.Message);
+        }
+
+        /// <summary>获取评论分页列表 (后台审核用，需登录)</summary>
         [Authorize]
         [HttpGet("page")]
         public async Task<IActionResult> GetPage([FromQuery] GetCommentPageQuery query)
@@ -36,7 +51,7 @@ namespace RiverLi.Blog.Services.Blog.Api.Controllers
             return result.Success ? Ok(result) : BadRequest(result.Message);
         }
 
-        /// <summary>审核评论 (通过/拒绝)</summary>
+        /// <summary>审核评论 - 通过/拒绝（需登录）</summary>
         [Authorize]
         [HttpPut("{id:guid}/audit")]
         public async Task<IActionResult> Audit(Guid id, [FromBody] AuditCommentCommand command)
@@ -48,7 +63,7 @@ namespace RiverLi.Blog.Services.Blog.Api.Controllers
             return result.Success ? Ok(result) : BadRequest(result.Message);
         }
 
-        /// <summary>彻底删除违规评论</summary>
+        /// <summary>彻底删除违规评论（需登录）</summary>
         [Authorize]
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)

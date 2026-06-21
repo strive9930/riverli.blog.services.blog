@@ -11,6 +11,7 @@ namespace RiverLi.Blog.Services.Blog.Application.Features.Articles.Commands;
 public record UpdateArticleCommand(
     Guid Id,
     string Title,
+    string? Slug,
     string Content,
     string Summary,
     string? CoverUrl,

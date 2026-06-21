@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using RiverLi.Blog.Services.Blog.Application.Common;
 using RiverLi.Blog.Services.Blog.Domain.Aggregates;
 using RiverLi.Blog.Services.Blog.Domain.Enum;
 
@@ -111,6 +112,7 @@ public static class DbSeeder
 
         var article = new Article(
             title:       "欢迎使用 RiverLi Blog 博客系统",
+            slug:        SlugHelper.Generate("欢迎使用 RiverLi Blog 博客系统"),
             content:     """
                          ## 欢迎 👋
 
