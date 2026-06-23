@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace RiverLi.Blog.Services.Blog.Application.Common.Dto;
@@ -18,5 +18,6 @@ public record ArticleDto(
     List<string> Tags,
     int ViewCount,
     int CommentCount,
-    DateTime CreatedTime
+    DateTime CreatedTime,
+    DateTime? ScheduledPublishTime
 );

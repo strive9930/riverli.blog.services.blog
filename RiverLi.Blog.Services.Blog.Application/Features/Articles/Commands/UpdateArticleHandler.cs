@@ -1,9 +1,9 @@
-﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using RiverLi.Blog.Services.Blog.Application.Common;
 using RiverLi.Blog.Services.Blog.Domain.Aggregates;
+using RiverLi.Blog.Services.Blog.Domain.Enum;
 using RiverLi.DDD.Core.Application.Common.Interfaces;
 using RiverLi.DDD.Core.Application.Common.Models;
 using RiverLi.DDD.Core.Domain.Repositories;
@@ -41,6 +41,12 @@ public class UpdateArticleHandler : IRequestHandler<UpdateArticleCommand, Result
 
         if (request.TagIds != null)
             article.SetTags(request.TagIds);
+
+        // 定时发布逻辑
+        if (request.ScheduledPublishTime.HasValue)
+            article.SchedulePublish(request.ScheduledPublishTime.Value);
+        else if (article.Status == ArticleStatus.Scheduled)
+            article.CancelScheduledPublish(); // 清空定时时间则取消定时
 
         await _repository.UpdateAsync(article, cancellationToken);
         var saved = await _repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);

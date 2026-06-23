@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using RiverLi.Blog.Services.Blog.Domain.Enum;
@@ -22,6 +22,9 @@ public class Article : BaseEntity<Guid>, IAggregateRoot
     // 状态与分类
     public ArticleStatus Status { get; private set; }
     public Guid CategoryId { get; private set; }
+
+    // 定时发布时间
+    public DateTime? ScheduledPublishTime { get; private set; }
 
     // 作者冗余信息
     public string AuthorId { get; private set; }
@@ -76,7 +79,33 @@ public class Article : BaseEntity<Guid>, IAggregateRoot
     /// </summary>
     public void ChangeStatus(ArticleStatus status)
     {
+        // 发布时清除定时时间
+        if (status == ArticleStatus.Published)
+            ScheduledPublishTime = null;
+
         Status = status;
+        UpdateModifyTime();
+    }
+
+    /// <summary>
+    /// 领域行为：设置定时发布时间
+    /// </summary>
+    public void SchedulePublish(DateTime scheduledTime)
+    {
+        if (scheduledTime <= DateTime.Now)
+            throw new ArgumentException("定时发布时间必须晚于当前时间");
+        ScheduledPublishTime = scheduledTime;
+        Status = ArticleStatus.Scheduled;
+        UpdateModifyTime();
+    }
+
+    /// <summary>
+    /// 领域行为：取消定时发布，回退为草稿
+    /// </summary>
+    public void CancelScheduledPublish()
+    {
+        ScheduledPublishTime = null;
+        Status = ArticleStatus.Draft;
         UpdateModifyTime();
     }
 

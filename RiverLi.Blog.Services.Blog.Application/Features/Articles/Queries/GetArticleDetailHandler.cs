@@ -38,7 +38,7 @@ public class GetArticleDetailHandler : IRequestHandler<GetArticleDetailQuery, Re
                 a.AuthorId, a.AuthorName, a.Status.ToString(),
                 a.CategoryId, a.Category != null ? a.Category.Name : null,
                 a.Tags.Select(t => new TagDto(t.TagId, t.Tag!.Name, t.Tag.Slug, 0)).ToList(),
-                a.ViewCount, a.Comments.Count, a.CreateTime, a.UpdateTime
+                a.ViewCount, a.Comments.Count, a.CreateTime, a.UpdateTime, a.ScheduledPublishTime
             ))
             .FirstOrDefaultAsync(cancellationToken);
 

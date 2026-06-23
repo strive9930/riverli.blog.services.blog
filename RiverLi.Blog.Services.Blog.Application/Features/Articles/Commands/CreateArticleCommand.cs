@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using MediatR;
 using RiverLi.DDD.Core.Application.Common.Models;
@@ -15,6 +15,7 @@ namespace RiverLi.Blog.Services.Blog.Application.Features.Articles.Commands;
 /// <param name="CoverUrl">封面图 URL（允许为空）</param>
 /// <param name="CategoryId">所属分类 ID</param>
 /// <param name="TagIds">关联的标签 ID 集合（允许为空）</param>
+/// <param name="ScheduledPublishTime">定时发布时间（可选，留空则立即可发布）</param>
 public record CreateArticleCommand(
     string Title,
     string? Slug,
@@ -22,5 +23,6 @@ public record CreateArticleCommand(
     string Summary,
     string? CoverUrl,
     Guid CategoryId,
-    List<Guid>? TagIds
+    List<Guid>? TagIds,
+    DateTime? ScheduledPublishTime
 ) : IRequest<Result<Guid>>;

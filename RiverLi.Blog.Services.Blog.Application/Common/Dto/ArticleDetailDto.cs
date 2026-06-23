@@ -22,5 +22,6 @@ public record ArticleDetailDto(
     int ViewCount,
     int CommentCount,
     DateTime CreatedTime,
-    DateTime? ModifiedTime
+    DateTime? ModifiedTime,
+    DateTime? ScheduledPublishTime
 );

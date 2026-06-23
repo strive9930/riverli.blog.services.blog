@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using MediatR;
 using RiverLi.DDD.Core.Application.Common.Models;
@@ -16,5 +16,6 @@ public record UpdateArticleCommand(
     string Summary,
     string? CoverUrl,
     Guid CategoryId,
-    List<Guid>? TagIds
+    List<Guid>? TagIds,
+    DateTime? ScheduledPublishTime
 ) : IRequest<Result>;

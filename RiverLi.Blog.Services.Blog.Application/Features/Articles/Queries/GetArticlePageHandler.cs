@@ -82,7 +82,7 @@ public class GetArticlePageHandler : IRequestHandler<GetArticlePageQuery, PagedR
                 a.Id, a.Title, a.Slug, a.Summary, a.CoverUrl, a.AuthorName,
                 a.Status.ToString(), a.Category != null ? a.Category.Name : null,
                 a.Tags.Select(t => t.Tag!.Name).ToList(),
-                a.ViewCount, a.Comments.Count, a.CreateTime
+                a.ViewCount, a.Comments.Count, a.CreateTime, a.ScheduledPublishTime
             ))
             .ToListAsync(cancellationToken);
 

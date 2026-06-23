@@ -8,6 +8,7 @@ namespace RiverLi.Blog.Services.Blog.Domain.Enum;
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum ArticleStatus 
 { 
-    Draft = 0,     // 草稿
-    Published = 1  // 已发布
+    Draft = 0,      // 草稿
+    Published = 1,  // 已发布
+    Scheduled = 2   // 待定时发布
 }

@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -51,6 +51,10 @@ public class CreateArticleHandler : IRequestHandler<CreateArticleCommand, Result
 
         if (request.TagIds != null && request.TagIds.Any())
             article.SetTags(request.TagIds);
+
+        // 定时发布：设置 ScheduledPublishTime 并将状态改为 Scheduled
+        if (request.ScheduledPublishTime.HasValue)
+            article.SchedulePublish(request.ScheduledPublishTime.Value);
 
         await _repository.AddAsync(article, cancellationToken);
         var saved = await _repository.UnitOfWork.SaveEntitiesAsync(cancellationToken);

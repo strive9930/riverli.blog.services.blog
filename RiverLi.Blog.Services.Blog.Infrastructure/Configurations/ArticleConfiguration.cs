@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using RiverLi.Blog.Services.Blog.Domain.Aggregates;
 
@@ -38,6 +38,9 @@ public class ArticleConfiguration : IEntityTypeConfiguration<Article>
         builder.Property(x => x.Status)
             .HasConversion<string>()
             .HasMaxLength(20);
+
+        builder.Property(x => x.ScheduledPublishTime)
+            .HasColumnType("datetime(6)");
 
         // 软删除全局过滤器
         builder.HasQueryFilter(x => !x.IsDeleted);
