@@ -21,14 +21,19 @@ public class ChangeArticleStatusHandler : IRequestHandler<ChangeArticleStatusCom
 
     public async Task<Result> Handle(ChangeArticleStatusCommand request, CancellationToken cancellationToken)
     {
-        if (!_currentUser.IsAuthenticated || _currentUser.Id == null)
-            return Result.FailResult("未登录用户无法操作");
+        // 系统内部调用（定时任务等）跳过用户校验
+        if (!request.IsSystem)
+        {
+            if (!_currentUser.IsAuthenticated || _currentUser.Id == null)
+                return Result.FailResult("未登录用户无法操作");
+        }
 
         var article = await _repository.GetByIdAsync(request.Id, cancellationToken);
         if (article == null)
             return Result.FailResult("文章不存在");
 
-        if (article.AuthorId != _currentUser.Id.ToString())
+        // 仅登录用户做作者权限校验，系统调用不做
+        if (!request.IsSystem && article.AuthorId != _currentUser.Id.ToString())
             return Result.FailResult("只能操作自己的文章");
 
         article.ChangeStatus(request.Status);

@@ -37,7 +37,7 @@ public class InternalArticleController : BaseApiController
         foreach (var articleId in result.Data)
         {
             var changeResult = await _mediator.Send(
-                new ChangeArticleStatusCommand(articleId, ArticleStatus.Published));
+                new ChangeArticleStatusCommand(articleId, ArticleStatus.Published,true));
             if (changeResult.Success) publishedCount++;
         }
 

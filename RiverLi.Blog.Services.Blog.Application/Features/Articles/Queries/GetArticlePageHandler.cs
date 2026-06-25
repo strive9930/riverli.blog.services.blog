@@ -56,12 +56,10 @@ public class GetArticlePageHandler : IRequestHandler<GetArticlePageQuery, PagedR
         if (request.TagId.HasValue)
             query = query.Where(a => a.Tags.Any(t => t.TagId == request.TagId.Value));
 
-        // 7. 按发布状态筛选 (Draft / Published)；公开访问默认仅展示已发布文章
+        // 7. 按发布状态筛选 (Draft / Published)；未传参数则查全部
         if (!string.IsNullOrWhiteSpace(request.Status) &&
             System.Enum.TryParse<RiverLi.Blog.Services.Blog.Domain.Enum.ArticleStatus>(request.Status, true, out var status))
             query = query.Where(a => a.Status == status);
-        else
-            query = query.Where(a => a.Status == ArticleStatus.Published);
 
         // 8. 先统计总数 (在分页之前)
         var totalCount = await query.CountAsync(cancellationToken);
