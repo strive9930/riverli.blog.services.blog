@@ -2,6 +2,7 @@
 using FluentValidation;
 using RiverLi.Blog.Infrastructure.Shared.Data;
 using RiverLi.DDD.Core.Domain.Repositories;
+using RiverLi.Blog.Infrastructure.Shared.Consul;
 using RiverLi.Blog.Infrastructure.Shared.Extensions;
 using RiverLi.Blog.Infrastructure.Shared.OpenApi;
 using RiverLi.Blog.Services.Blog.Application.Common.Behaviors;
@@ -17,6 +18,11 @@ public class Program
     public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+        // ==========================================
+        // 0. 从 Consul 配置中心拉取远程配置（覆盖本地 appsettings）
+        // ==========================================
+        builder.Configuration.AddConsulConfiguration(builder.Configuration.GetSection("Consul"));
 
         // ==========================================
         // 1. 共享基建注入
