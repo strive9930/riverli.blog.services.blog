@@ -1,4 +1,4 @@
-pipeline {
+﻿pipeline {
 	agent any
 
 	environment {
@@ -21,13 +21,13 @@ pipeline {
 		stage('📦 2. 构建并推送公共镜像') {
 			steps {
 				script {
-					// 使用标准的 Docker 命令打包 (不需要输入密码，因为构建公共镜像直接推)
-					sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
-					sh "docker build -t ${IMAGE_NAME}:latest ."
+					// 🌟 修改1：使用 -f 指定子目录下的 Dockerfile，但末尾保持为 . (代表在项目根目录执行构建上下文)
+					sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} -f RiverLi.Blog.Services.Blog.Api/Dockerfile ."
+					sh "docker build -t ${IMAGE_NAME}:latest -f RiverLi.Blog.Services.Blog.Api/Dockerfile ."
 
-					// 登录 GitHub Packages 或 Docker Hub (密码在 Jenkins 凭据里配置)
+					// 🌟 修改2：因为您的 IMAGE_NAME 带有 ghcr.io 前缀，docker login 后面必须显式指定 ghcr.io 地址，否则默认会去登录 Docker Hub
 					withCredentials([usernamePassword(credentialsId: 'github-registry-credentials', usernameVariable: 'REG_USER', passwordVariable: 'REG_PASS')]) {
-						sh "echo ${REG_PASS} | docker login -u ${REG_USER} --password-stdin"
+						sh "echo ${REG_PASS} | docker login ghcr.io -u ${REG_USER} --password-stdin"
 						sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
 						sh "docker push ${IMAGE_NAME}:latest"
 					}
