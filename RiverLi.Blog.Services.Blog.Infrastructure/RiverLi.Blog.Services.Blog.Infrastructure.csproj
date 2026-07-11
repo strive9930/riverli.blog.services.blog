@@ -18,11 +18,11 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
-    <PackageReference Include="RiverLi.DDD.Core" Version="1.0.8" />
+    <PackageReference Include="RiverLi.DDD.Core" Version="1.0.9" />
+    <PackageReference Include="RiverLi.Blog.Infrastructure.Shared" Version="1.0.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\riverli.blog.infrastructure.shared\RiverLi.Blog.Infrastructure.Shared.csproj" />
     <ProjectReference Include="..\RiverLi.Blog.Services.Blog.Application\RiverLi.Blog.Services.Blog.Application.csproj" />
     <ProjectReference Include="..\RiverLi.Blog.Services.Blog.Domain\RiverLi.Blog.Services.Blog.Domain.csproj" />
   </ItemGroup>
