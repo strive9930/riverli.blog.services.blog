@@ -4,6 +4,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +25,12 @@
     <ProjectReference Include="..\..\riverli.blog.infrastructure.shared\RiverLi.Blog.Infrastructure.Shared.csproj" />
     <ProjectReference Include="..\RiverLi.Blog.Services.Blog.Application\RiverLi.Blog.Services.Blog.Application.csproj" />
     <ProjectReference Include="..\RiverLi.Blog.Services.Blog.Infrastructure\RiverLi.Blog.Services.Blog.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\.dockerignore">
+      <Link>.dockerignore</Link>
+    </Content>
   </ItemGroup>
 
 </Project>
