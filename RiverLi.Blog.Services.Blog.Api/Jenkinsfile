@@ -36,31 +36,32 @@ pipeline {
 		}
 
 		stage('🔄 3. 跨仓库改写 K8s 配置库 (GitOps 核心)') {
-			steps {
-				script {
-					// 1. 使用带有 GitHub Token 的凭证克隆我们的【配置仓库】
-					withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
-						sh "git clone https://${GITHUB_TOKEN}@${MANIFEST_REPO} manifest-folder"
-					}
-
-					// 2. 进入配置仓库，使用 Linux 的 sed 命令，精准替换 blog.yaml 里的旧镜像标签
-					dir('manifest-folder') {
-						// 假设我们在配置库里写的是 image: your-github-username/riverli-blog-api:.*
-						// 下面这行命令会自动把冒号后面的标签替换为最新的 v${BUILD_NUMBER}
-						sh "sed -i 's|image: ${IMAGE_NAME}:.*|image: ${IMAGE_NAME}:${IMAGE_TAG}|g' apps/blog.yaml"
-
-						// 3. 配置 Git 机器人身份，提交并推回 GitHub
-						sh "git config user.name 'Jenkins CI'"
-						sh "git config user.email 'jenkins@riverli.com'"
-						sh "git add apps/blog.yaml"
-						sh "git commit -m '🤖 Jenkins 自动触发发版: ${IMAGE_NAME}:${IMAGE_TAG}'"
-
-						withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
-							sh "git push https://${GITHUB_TOKEN}@${MANIFEST_REPO} main"
-						}
-					}
-				}
-			}
-		}
+        			steps {
+        				script {
+        					// 🌟 核心修复：克隆前，无情地删掉上一次残存的旧文件夹，确保战场绝对干净！
+        					sh 'rm -rf manifest-folder'
+        
+        					// 1. 使用带有 GitHub Token 的凭证克隆我们的【配置仓库】
+        					withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+        						sh 'git clone https://$GITHUB_TOKEN@$MANIFEST_REPO manifest-folder'
+        					}
+        
+        					// 2. 进入配置仓库，使用 Linux 的 sed 命令，精准替换 blog.yaml 里的旧镜像标签
+        					dir('manifest-folder') {
+        						sh "sed -i 's|image: ${IMAGE_NAME}:.*|image: ${IMAGE_NAME}:${IMAGE_TAG}|g' apps/blog.yaml"
+        
+        						// 3. 配置 Git 机器人身份，提交并推回 GitHub
+        						sh "git config user.name 'Jenkins CI'"
+        						sh "git config user.email 'jenkins@riverli.com'"
+        						sh "git add apps/blog.yaml"
+        						sh "git commit -m '🤖 Jenkins 自动触发发版: ${IMAGE_NAME}:${IMAGE_TAG}'"
+        
+        						withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+        							sh 'git push https://$GITHUB_TOKEN@$MANIFEST_REPO main'
+        						}
+        					}
+        				}
+        			}
+        }
 	}
 }
