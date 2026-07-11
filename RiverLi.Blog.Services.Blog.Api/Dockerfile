@@ -1,4 +1,4 @@
-﻿# 阶段1：构建环境 (必须使用包含完整 .NET SDK 的镜像)
+# 阶段1：构建环境 (必须使用包含完整 .NET SDK 的镜像)
 FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
 WORKDIR /src
 
