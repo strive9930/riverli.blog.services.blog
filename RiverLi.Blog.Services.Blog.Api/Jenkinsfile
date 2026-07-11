@@ -3,7 +3,7 @@ pipeline {
 
 	environment {
 		// 🌟 定义镜像名字和 GitHub 用户名
-		IMAGE_NAME = "strive9930/riverli-blog-api"
+		IMAGE_NAME = "ghcr.io/strive9930/riverli-blog-api"
 		// 🌟 利用 Jenkins 内置的 BUILD_NUMBER 作为唯一的镜像标签 (如 v1, v2, v3)
 		IMAGE_TAG = "v${BUILD_NUMBER}"
 		// 统一配置仓库的 Git 地址
