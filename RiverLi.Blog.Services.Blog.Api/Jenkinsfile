@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
-        // 🌟 定义镜像名字和 GitHub 用户名
-        IMAGE_NAME = "ghcr.io/strive9930/riverli-blog-api"
-        // 🌟 利用 Jenkins 内置的 BUILD_NUMBER 作为唯一的镜像标签 (如 v1, v2, v3)
+        // 🌟 【临时测试】将镜像名称改为带 -test 后缀，用于排查权限问题
+        IMAGE_NAME = "ghcr.io/strive9930/riverli-blog-api-test"
+        // 🌟 利用 Jenkins 内置的 BUILD_NUMBER 作为唯一的镜像标签
         IMAGE_TAG = "v${BUILD_NUMBER}"
         // 统一配置仓库的 Git 地址
         MANIFEST_REPO = "github.com/strive9930/riverli-k8s-manifests.git"
@@ -13,7 +13,6 @@ pipeline {
     stages {
         stage('📥 1. 检出业务代码') {
             steps {
-                // Jenkins 会自动处理当前仓库的代码拉取
                 echo "开始构建微服务: ${IMAGE_NAME}:${IMAGE_TAG}"
             }
         }
@@ -21,13 +20,10 @@ pipeline {
         stage('📦 2. 构建并推送公共镜像') {
             steps {
                 script {
-                    // 🌟 修改1：使用 -f 指定子目录下的 Dockerfile，但末尾保持为 . (代表在项目根目录执行构建上下文)
                     sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} -f RiverLi.Blog.Services.Blog.Api/Dockerfile ."
                     sh "docker build -t ${IMAGE_NAME}:latest -f RiverLi.Blog.Services.Blog.Api/Dockerfile ."
 
-                    // 🌟 修改2：因为您的 IMAGE_NAME 带有 ghcr.io 前缀，docker login 后面必须显式指定 ghcr.io 地址，否则默认会去登录 Docker Hub
                     withCredentials([usernamePassword(credentialsId: 'github-registry-credentials', usernameVariable: 'REG_USER', passwordVariable: 'REG_PASS')]) {
-                        // 使用单引号包裹 sh 命令，让 Shell 安全地从环境变量读取凭据
                         sh 'echo $REG_PASS | docker login ghcr.io -u $REG_USER --password-stdin'
                         sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
                         sh "docker push ${IMAGE_NAME}:latest"
@@ -39,20 +35,15 @@ pipeline {
         stage('🔄 3. 跨仓库改写 K8s 配置库 (GitOps 核心)') {
             steps {
                 script {
-                    // 🌟 核心修复：克隆前，无情地删掉上一次残存的旧文件夹，确保战场绝对干净！
                     sh 'rm -rf manifest-folder'
         
-                    // 1. 使用带有 GitHub Token 的凭证克隆我们的【配置仓库】
                     withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
                         sh 'git clone https://$GITHUB_TOKEN@github.com/strive9930/riverli-k8s-manifests.git manifest-folder'
                     }
         
-                    // 2. 进入配置仓库，使用 Linux 的 sed 命令，精准替换 blog.yaml 里的旧镜像标签
                     dir('manifest-folder') {
-                        // 修复引号嵌套：使用反斜杠转义 sed 命令内部的单引号
                         sh "sed -i 's|image: ${IMAGE_NAME}:.*|image: ${IMAGE_NAME}:${IMAGE_TAG}|g' apps/blog.yaml"
         
-                        // 3. 配置 Git 机器人身份，提交并推回 GitHub
                         sh 'git config user.name "Jenkins CI"'
                         sh 'git config user.email "jenkins@riverli.com"'
                         sh 'git add apps/blog.yaml'
