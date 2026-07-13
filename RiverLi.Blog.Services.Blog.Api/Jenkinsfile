@@ -22,14 +22,14 @@ pipeline {
 			steps {
 				script {
 					// 🌟 修改1：使用 -f 指定子目录下的 Dockerfile，但末尾保持为 . (代表在项目根目录执行构建上下文)
-					sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} -f RiverLi.Blog.Services.Blog.Api/Dockerfile ."
-					sh "docker build -t ${IMAGE_NAME}:latest -f RiverLi.Blog.Services.Blog.Api/Dockerfile ."
+					sh 'docker build -t ${IMAGE_NAME}:${IMAGE_TAG} -f RiverLi.Blog.Services.Blog.Api/Dockerfile .'
+					sh 'docker build -t ${IMAGE_NAME}:latest -f RiverLi.Blog.Services.Blog.Api/Dockerfile .'
 
 					// 🌟 修改2：因为您的 IMAGE_NAME 带有 ghcr.io 前缀，docker login 后面必须显式指定 ghcr.io 地址，否则默认会去登录 Docker Hub
 					withCredentials([usernamePassword(credentialsId: 'github-registry-credentials', usernameVariable: 'REG_USER', passwordVariable: 'REG_PASS')]) {
-						sh "echo ${REG_PASS} | docker login ghcr.io -u ${REG_USER} --password-stdin"
-						sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
-						sh "docker push ${IMAGE_NAME}:latest"
+						sh 'echo ${REG_PASS} | docker login ghcr.io -u ${REG_USER} --password-stdin'
+						sh 'docker push ${IMAGE_NAME}:${IMAGE_TAG}'
+						sh 'docker push ${IMAGE_NAME}:latest'
 					}
 				}
 			}
@@ -48,13 +48,13 @@ pipeline {
         
         					// 2. 进入配置仓库，使用 Linux 的 sed 命令，精准替换 blog.yaml 里的旧镜像标签
         					dir('manifest-folder') {
-        						sh "sed -i 's|image: ${IMAGE_NAME}:.*|image: ${IMAGE_NAME}:${IMAGE_TAG}|g' apps/blog.yaml"
+        						sh 'sed -i 's|image: ${IMAGE_NAME}:.*|image: ${IMAGE_NAME}:${IMAGE_TAG}|g' apps/blog.yaml'
         
         						// 3. 配置 Git 机器人身份，提交并推回 GitHub
-        						sh "git config user.name 'Jenkins CI'"
-        						sh "git config user.email 'jenkins@riverli.com'"
-        						sh "git add apps/blog.yaml"
-        						sh "git commit -m '🤖 Jenkins 自动触发发版: ${IMAGE_NAME}:${IMAGE_TAG}'"
+        						sh 'git config user.name 'Jenkins CI''
+        						sh 'git config user.email 'jenkins@riverli.com''
+        						sh 'git add apps/blog.yaml'
+        						sh 'git commit -m '🤖 Jenkins 自动触发发版: ${IMAGE_NAME}:${IMAGE_TAG}''
         
         						withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
         							sh 'git push https://$GITHUB_TOKEN@$MANIFEST_REPO main'
