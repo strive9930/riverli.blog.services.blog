@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // 🌟 【临时测试】将镜像名称改为带 -test 后缀，用于排查权限问题
-        IMAGE_NAME = "ghcr.io/strive9930/riverli-blog-api-test"
+        IMAGE_NAME = "ghcr.io/strive9930/riverli-blog-api"
         // 🌟 利用 Jenkins 内置的 BUILD_NUMBER 作为唯一的镜像标签
         IMAGE_TAG = "v${BUILD_NUMBER}"
         // 统一配置仓库的 Git 地址
