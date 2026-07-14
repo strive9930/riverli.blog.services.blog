@@ -111,31 +111,7 @@ public class Program
         app.UseStaticFiles();
         
         // 启动时自动迁移数据库并初始化种子数据
-        using (var scope = app.Services.CreateScope())
-        {
-            var services = scope.ServiceProvider;
-            try
-            {
-                var dbContext = services.GetRequiredService<BlogDbContext>();
-                var logger = services.GetRequiredService<ILogger<Program>>();
-
-                if (dbContext.Database.GetPendingMigrations().Any())
-                {
-                    logger.LogInformation("检测到未应用的迁移，开始执行...");
-                    await dbContext.Database.MigrateAsync();
-                    await DbSeeder.SeedAsync(dbContext, logger);
-                }
-                else
-                {
-                    await DbSeeder.SeedAsync(dbContext, logger);
-                }
-            }
-            catch (Exception ex)
-            {
-                var logger = services.GetRequiredService<ILogger<Program>>();
-                logger.LogError(ex, "在执行数据库自动迁移或种子数据初始化时发生错误！");
-            }
-        }
+        await DbSeeder.SeedAsync(app.Services);
         
         app.UseInfrastructureSharedMiddlewares();
         app.UseAuthentication();

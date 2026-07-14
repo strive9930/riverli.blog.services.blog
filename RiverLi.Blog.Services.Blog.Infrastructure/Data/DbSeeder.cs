@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RiverLi.Blog.Services.Blog.Application.Common;
 using RiverLi.Blog.Services.Blog.Domain.Aggregates;
@@ -14,16 +15,33 @@ namespace RiverLi.Blog.Services.Blog.Infrastructure.Data;
 /// </summary>
 public static class DbSeeder
 {
-    public static async Task SeedAsync(BlogDbContext dbContext, ILogger logger, CancellationToken ct = default)
+    public static async Task SeedAsync(IServiceProvider serviceProvider)
     {
-        logger.LogInformation("开始检查并初始化种子数据...");
+        using var scope = serviceProvider.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<BlogDbContext>();
+        var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>()
+            .CreateLogger("BlogDbSeeder");
 
-        await SeedCategoriesAsync(dbContext, logger, ct);
-        await SeedTagsAsync(dbContext, logger, ct);
-        await SeedSiteNavigationsAsync(dbContext, logger, ct);
-        await SeedSampleArticleAsync(dbContext, logger, ct);
+        try
+        {
+            logger.LogInformation("正在迁移博客服务数据库...");
+            await dbContext.Database.MigrateAsync();
+            logger.LogInformation("博客服务数据库迁移完成");
 
-        logger.LogInformation("种子数据初始化完成。");
+            logger.LogInformation("开始检查并初始化种子数据...");
+
+            await SeedCategoriesAsync(dbContext, logger, CancellationToken.None);
+            await SeedTagsAsync(dbContext, logger, CancellationToken.None);
+            await SeedSiteNavigationsAsync(dbContext, logger, CancellationToken.None);
+            await SeedSampleArticleAsync(dbContext, logger, CancellationToken.None);
+
+            logger.LogInformation("种子数据初始化完成。");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "博客服务数据库迁移或初始化失败");
+            throw;
+        }
     }
 
     /// <summary>
